@@ -1,0 +1,1417 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>PromptDock</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0f14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PromptDock">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --bg2:#0f1521;
+      --card:#121824;
+      --card2:#171f2e;
+      --panel:#101722;
+      --text:#f4f7fb;
+      --muted:#97a5b5;
+      --line:#253247;
+      --accent:#f5c451;
+      --accent2:#4da3ff;
+      --ok:#35c975;
+      --danger:#ff6b6b;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --shadow-soft:0 8px 22px rgba(0,0,0,.22);
+      --radius:18px;
+      --radius-sm:12px;
+      --header-h:74px;
+      --bottom-h:82px;
+      --max:980px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    body{min-height:100vh;-webkit-tap-highlight-color:transparent}
+    button,input,textarea,select{font:inherit}
+    input,textarea,select{
+      width:100%;
+      background:#0e141f;
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px 14px;
+      outline:none;
+    }
+    textarea{min-height:170px;resize:vertical}
+    input:focus,textarea:focus,select:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(77,163,255,.15)}
+    button{
+      border:0;
+      border-radius:14px;
+      padding:12px 14px;
+      cursor:pointer;
+      color:var(--text);
+      background:#1a2332;
+      transition:transform .08s ease,opacity .18s ease,background .18s ease;
+    }
+    button:active{transform:scale(.98)}
+    .btn-primary{background:linear-gradient(135deg,var(--accent2),#2e80ff)}
+    .btn-warm{background:linear-gradient(135deg,var(--accent),#f2a93b); color:#151515; font-weight:700}
+    .btn-danger{background:linear-gradient(135deg,#ff7b7b,var(--danger))}
+    .btn-ghost{background:#111927;border:1px solid var(--line)}
+    .btn-ok{background:linear-gradient(135deg,#47d787,var(--ok));color:#082012;font-weight:700}
+
+    .app{
+      max-width:var(--max);
+      margin:0 auto;
+      padding-bottom:calc(var(--bottom-h) + 18px);
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter:blur(14px);
+      background:rgba(11,15,20,.76);
+      border-bottom:1px solid rgba(255,255,255,.04);
+    }
+    .topbar-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      min-height:var(--header-h);
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .brand{
+      min-width:0;
+      flex:1;
+    }
+    .brand h1{
+      margin:0;
+      font-size:1.12rem;
+      line-height:1.05;
+      letter-spacing:.2px;
+    }
+    .brand p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:.86rem;
+    }
+
+    .icon-btn{
+      width:46px;
+      height:46px;
+      padding:0;
+      border-radius:14px;
+      background:#121b2a;
+      border:1px solid var(--line);
+      display:grid;
+      place-items:center;
+      font-size:1.12rem;
+    }
+
+    .wrap{padding:14px}
+    .searchbox{
+      position:relative;
+      margin:2px 0 14px;
+    }
+    .searchbox input{
+      padding-left:44px;
+      height:50px;
+      border-radius:16px;
+      background:#0f1724;
+    }
+    .searchbox .search-ico{
+      position:absolute;
+      left:14px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--muted);
+      font-size:1rem;
+      pointer-events:none;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .stat{
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      box-shadow:var(--shadow-soft);
+    }
+    .stat .k{
+      font-size:1.4rem;
+      font-weight:800;
+      margin-bottom:4px;
+    }
+    .stat .l{
+      color:var(--muted);
+      font-size:.86rem;
+    }
+
+    .section{
+      margin:18px 0 12px;
+    }
+    .section-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .section-head h2{
+      margin:0;
+      font-size:1rem;
+      letter-spacing:.2px;
+    }
+    .muted{color:var(--muted)}
+    .tiny{font-size:.82rem}
+
+    .folder-row{
+      display:flex;
+      gap:10px;
+      overflow:auto;
+      padding-bottom:2px;
+      scrollbar-width:none;
+    }
+    .folder-row::-webkit-scrollbar{display:none}
+    .folder-chip{
+      min-width:138px;
+      background:linear-gradient(180deg,#131c2a,#111825);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:12px 12px;
+      box-shadow:var(--shadow-soft);
+      cursor:pointer;
+    }
+    .folder-chip.active{
+      outline:2px solid rgba(77,163,255,.32);
+      border-color:#3a6fb7;
+    }
+    .folder-chip .name{
+      font-weight:700;
+      margin-bottom:6px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .folder-chip .meta{
+      color:var(--muted);
+      font-size:.82rem;
+    }
+
+    .toolbar{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .prompts{
+      display:grid;
+      gap:12px;
+    }
+    .card{
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+    .card-top{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .card-title{
+      margin:0;
+      font-size:1rem;
+      line-height:1.22;
+    }
+    .card-folder{
+      display:inline-flex;
+      margin-top:8px;
+      color:var(--muted);
+      font-size:.82rem;
+      gap:6px;
+      align-items:center;
+    }
+    .flags{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .flag{
+      font-size:.72rem;
+      padding:6px 8px;
+      border-radius:999px;
+      background:#0f1724;
+      border:1px solid var(--line);
+      color:#dbe5f4;
+    }
+    .flag.pin{border-color:#7f631f;color:#ffdf8a}
+    .flag.fav{border-color:#8e6a1f;color:#ffd770}
+    .flag.copies{border-color:#2e568e;color:#8ec1ff}
+
+    .card-body{
+      margin-top:12px;
+      white-space:pre-wrap;
+      color:#e8eef7;
+      line-height:1.48;
+      font-size:.95rem;
+      display:-webkit-box;
+      -webkit-line-clamp:6;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .card-note{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background:#0f1724;
+      border:1px dashed var(--line);
+      color:#bfd0e4;
+      font-size:.85rem;
+      white-space:pre-wrap;
+    }
+    .tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+    .tag{
+      padding:6px 9px;
+      border-radius:999px;
+      background:#0f1724;
+      border:1px solid var(--line);
+      color:#bcd0e6;
+      font-size:.78rem;
+    }
+
+    .card-actions{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin-top:14px;
+    }
+    .card-actions button{
+      padding:11px 8px;
+      font-size:.85rem;
+      border-radius:12px;
+    }
+
+    .bottom-bar{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:max(10px, env(safe-area-inset-bottom));
+      width:min(calc(100% - 18px), calc(var(--max) - 18px));
+      z-index:70;
+      display:grid;
+      grid-template-columns:1fr 1fr 1.15fr 1fr;
+      gap:8px;
+      padding:8px;
+      background:rgba(14,20,31,.9);
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:22px;
+      backdrop-filter:blur(18px);
+      box-shadow:0 10px 30px rgba(0,0,0,.34);
+    }
+    .bottom-bar button{
+      min-height:52px;
+      border-radius:16px;
+      background:#111927;
+      border:1px solid var(--line);
+      font-size:.82rem;
+    }
+    .bottom-bar .main-add{
+      background:linear-gradient(135deg,var(--accent2),#2d80ff);
+      font-weight:800;
+    }
+
+    .fab{
+      position:fixed;
+      right:16px;
+      bottom:calc(var(--bottom-h) + 22px);
+      z-index:60;
+      width:58px;
+      height:58px;
+      border-radius:18px;
+      background:linear-gradient(135deg,var(--accent),#f2a93b);
+      color:#101010;
+      font-size:1.7rem;
+      font-weight:800;
+      box-shadow:0 12px 28px rgba(242,169,59,.28);
+    }
+
+    .empty{
+      background:linear-gradient(180deg,#111928,#0f1622);
+      border:1px dashed var(--line);
+      border-radius:20px;
+      padding:26px 16px;
+      text-align:center;
+      color:var(--muted);
+    }
+    .empty b{display:block;color:var(--text);margin-bottom:8px;font-size:1rem}
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.58);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      z-index:100;
+      padding:0;
+    }
+    .modal.show{display:flex}
+    .sheet{
+      width:100%;
+      max-width:var(--max);
+      max-height:92vh;
+      overflow:auto;
+      background:linear-gradient(180deg,#131b29,#101722);
+      border-top-left-radius:26px;
+      border-top-right-radius:26px;
+      border:1px solid rgba(255,255,255,.05);
+      padding:16px 14px 22px;
+      box-shadow:0 -10px 30px rgba(0,0,0,.35);
+    }
+    .sheet-handle{
+      width:54px;height:5px;border-radius:999px;background:#344156;margin:4px auto 14px;
+    }
+    .modal-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .modal-head h3{margin:0;font-size:1.05rem}
+    .field{margin-bottom:12px}
+    .field label{
+      display:block;
+      margin:0 0 7px;
+      color:#c9d6e4;
+      font-size:.9rem;
+      font-weight:600;
+    }
+    .row-2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .toggle-row{
+      display:flex;
+      gap:10px;
+      margin:8px 0 2px;
+      flex-wrap:wrap;
+    }
+    .toggle{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:#0f1724;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      color:#d4dfec;
+      font-size:.9rem;
+    }
+
+    .settings-list{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+    .settings-list button{
+      min-height:52px;
+      text-align:left;
+      padding:14px;
+      border-radius:16px;
+      background:#111927;
+      border:1px solid var(--line);
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%) translateY(20px);
+      bottom:calc(var(--bottom-h) + 98px);
+      background:#0d1624;
+      color:#f4f7fb;
+      border:1px solid var(--line);
+      padding:12px 14px;
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      opacity:0;
+      pointer-events:none;
+      transition:all .22s ease;
+      z-index:120;
+      max-width:calc(100% - 24px);
+      text-align:center;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    .desktop-space{height:0}
+
+    @media (min-width:760px){
+      .wrap{padding:18px}
+      .stats-grid{grid-template-columns:repeat(4,1fr)}
+      .toolbar{grid-template-columns:1fr 220px}
+      .sheet{border-radius:26px; max-height:90vh; margin:18px}
+      .modal{align-items:center;padding:18px}
+      .bottom-bar{
+        grid-template-columns:repeat(4,1fr);
+      }
+      .desktop-space{height:8px}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <h1>PromptDock</h1>
+        <p>Archivio prompt personale, veloce e installabile</p>
+      </div>
+      <button class="icon-btn" id="openSettingsBtn" title="Impostazioni">⚙️</button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="wrap">
+      <div class="searchbox">
+        <span class="search-ico">🔎</span>
+        <input id="searchInput" type="text" placeholder="Cerca in titolo, prompt, tag, note..." />
+      </div>
+
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Cartelle</h2>
+          <button class="btn-ghost" id="addFolderBtn">+ Nuova</button>
+        </div>
+        <div class="folder-row" id="folderRow"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Vista prompt</h2>
+          <span class="muted tiny" id="resultLabel">0 prompt</span>
+        </div>
+        <div class="toolbar">
+          <select id="filterSelect">
+            <option value="all">Tutti</option>
+            <option value="favorites">Solo preferiti</option>
+            <option value="pinned">Solo fissati</option>
+            <option value="recent">Usati di recente</option>
+          </select>
+          <select id="sortSelect">
+            <option value="updated_desc">Più recenti</option>
+            <option value="copies_desc">Più copiati</option>
+            <option value="title_asc">Titolo A-Z</option>
+            <option value="created_desc">Creati di recente</option>
+          </select>
+        </div>
+
+        <div class="section" id="quickSections"></div>
+
+        <div class="prompts" id="promptList"></div>
+        <div class="desktop-space"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="fab" id="fabAdd" title="Nuovo prompt">＋</button>
+
+  <div class="bottom-bar">
+    <button id="navAll">Tutti</button>
+    <button id="navFav">Preferiti</button>
+    <button class="main-add" id="navAdd">Nuovo</button>
+    <button id="navRecent">Recenti</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- MODAL PROMPT -->
+  <div class="modal" id="promptModal">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="modal-head">
+        <h3 id="promptModalTitle">Nuovo prompt</h3>
+        <button class="icon-btn" data-close="promptModal">✕</button>
+      </div>
+
+      <div class="field">
+        <label for="promptTitle">Titolo</label>
+        <input id="promptTitle" type="text" placeholder="Es. Report trimestrale, analisi film, studio azienda..." />
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label for="promptFolder">Cartella</label>
+          <select id="promptFolder"></select>
+        </div>
+        <div class="field">
+          <label for="promptTags">Tag</label>
+          <input id="promptTags" type="text" placeholder="finanza, report, chatgpt" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="promptBody">Prompt</label>
+        <textarea id="promptBody" placeholder="Scrivi qui il tuo prompt completo..."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="promptNote">Nota privata (opzionale)</label>
+        <textarea id="promptNote" style="min-height:100px" placeholder="Note personali, contesto, varianti, quando usarlo..."></textarea>
+      </div>
+
+      <div class="toggle-row">
+        <label class="toggle"><input type="checkbox" id="promptFavorite"> Preferito</label>
+        <label class="toggle"><input type="checkbox" id="promptPinned"> Fissato in alto</label>
+      </div>
+
+      <div class="toggle-row" style="margin-top:14px">
+        <button class="btn-primary" id="savePromptBtn">Salva prompt</button>
+        <button class="btn-ghost" data-close="promptModal">Annulla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FOLDER -->
+  <div class="modal" id="folderModal">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="modal-head">
+        <h3>Nuova cartella</h3>
+        <button class="icon-btn" data-close="folderModal">✕</button>
+      </div>
+
+      <div class="field">
+        <label for="folderName">Nome cartella</label>
+        <input id="folderName" type="text" placeholder="Es. Finanza, Report, Lavoro, Idee..." />
+      </div>
+
+      <div class="toggle-row">
+        <button class="btn-primary" id="saveFolderBtn">Salva cartella</button>
+        <button class="btn-ghost" data-close="folderModal">Annulla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SETTINGS -->
+  <div class="modal" id="settingsModal">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="modal-head">
+        <h3>Impostazioni</h3>
+        <button class="icon-btn" data-close="settingsModal">✕</button>
+      </div>
+
+      <div class="stats-grid" id="settingsStats"></div>
+
+      <div class="settings-list">
+        <button id="exportBtn">📤 Esporta backup JSON</button>
+        <button id="importBtn">📥 Importa backup JSON</button>
+        <button id="seedBtn">✨ Ripristina prompt demo</button>
+        <button id="resetBtn">🗑️ Reset completo dati</button>
+      </div>
+
+      <input id="importFile" type="file" accept="application/json" style="display:none" />
+
+      <div style="margin-top:14px" class="muted tiny">
+        I dati sono salvati sul tuo dispositivo con localStorage.  
+        Usa spesso l’export JSON per tenere un backup.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = "promptdock_v1";
+      const DEFAULT_FOLDER_ID = "all";
+      let state = loadState();
+      let currentFolderId = DEFAULT_FOLDER_ID;
+      let editingPromptId = null;
+
+      const els = {
+        statsGrid: document.getElementById("statsGrid"),
+        folderRow: document.getElementById("folderRow"),
+        promptList: document.getElementById("promptList"),
+        quickSections: document.getElementById("quickSections"),
+        resultLabel: document.getElementById("resultLabel"),
+        searchInput: document.getElementById("searchInput"),
+        filterSelect: document.getElementById("filterSelect"),
+        sortSelect: document.getElementById("sortSelect"),
+        toast: document.getElementById("toast"),
+
+        promptModal: document.getElementById("promptModal"),
+        folderModal: document.getElementById("folderModal"),
+        settingsModal: document.getElementById("settingsModal"),
+
+        promptModalTitle: document.getElementById("promptModalTitle"),
+        promptTitle: document.getElementById("promptTitle"),
+        promptFolder: document.getElementById("promptFolder"),
+        promptTags: document.getElementById("promptTags"),
+        promptBody: document.getElementById("promptBody"),
+        promptNote: document.getElementById("promptNote"),
+        promptFavorite: document.getElementById("promptFavorite"),
+        promptPinned: document.getElementById("promptPinned"),
+
+        folderName: document.getElementById("folderName"),
+
+        settingsStats: document.getElementById("settingsStats"),
+        importFile: document.getElementById("importFile")
+      };
+
+      function uid(prefix="id"){
+        return prefix + "_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
+      }
+
+      function now(){ return Date.now(); }
+
+      function seedData(){
+        const folder1 = { id: uid("folder"), name: "Finanza", createdAt: now() };
+        const folder2 = { id: uid("folder"), name: "Report", createdAt: now() };
+        const folder3 = { id: uid("folder"), name: "Idee", createdAt: now() };
+
+        const prompt1 = {
+          id: uid("prompt"),
+          title: "Analisi azienda rapida",
+          folderId: folder1.id,
+          body: "Analizza questa azienda come se fossi un analista finanziario. Voglio: modello di business, vantaggi competitivi, rischi principali, qualità del management, debito, margini, crescita, valutazione qualitativa finale e 3 domande chiave da approfondire.",
+          note: "Utile quando voglio una prima lettura veloce ma ordinata.",
+          tags: ["finanza","azienda","analisi"],
+          favorite: true,
+          pinned: true,
+          copies: 3,
+          lastCopiedAt: now() - 1000 * 60 * 60,
+          createdAt: now() - 1000 * 60 * 60 * 24 * 3,
+          updatedAt: now() - 1000 * 60 * 60 * 5
+        };
+
+        const prompt2 = {
+          id: uid("prompt"),
+          title: "Report sintetico professionale",
+          folderId: folder2.id,
+          body: "Trasforma queste note in un report professionale, pulito e leggibile. Strutturalo con: contesto, punti principali, criticità, azioni consigliate, conclusione finale. Tono chiaro e non ridondante.",
+          note: "",
+          tags: ["report","lavoro","sintesi"],
+          favorite: true,
+          pinned: false,
+          copies: 1,
+          lastCopiedAt: now() - 1000 * 60 * 60 * 9,
+          createdAt: now() - 1000 * 60 * 60 * 24 * 2,
+          updatedAt: now() - 1000 * 60 * 60 * 7
+        };
+
+        const prompt3 = {
+          id: uid("prompt"),
+          title: "Brainstorming idee migliorate",
+          folderId: folder3.id,
+          body: "Dammi 10 idee migliori a partire da questa idea iniziale. Per ogni idea indica: perché è interessante, per chi è utile, quanto è semplice realizzarla, e come renderla più concreta subito.",
+          note: "Ottimo per progetti app e mini tool.",
+          tags: ["idee","brainstorming","progetti"],
+          favorite: false,
+          pinned: false,
+          copies: 2,
+          lastCopiedAt: now() - 1000 * 60 * 60 * 30,
+          createdAt: now() - 1000 * 60 * 60 * 24,
+          updatedAt: now() - 1000 * 60 * 60 * 12
+        };
+
+        return {
+          folders: [folder1, folder2, folder3],
+          prompts: [prompt1, prompt2, prompt3],
+          stats: {
+            totalCopies: 6
+          }
+        };
+      }
+
+      function loadState(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if(!raw){
+            return seedData();
+          }
+          const parsed = JSON.parse(raw);
+          if(!parsed || !Array.isArray(parsed.folders) || !Array.isArray(parsed.prompts)){
+            return seedData();
+          }
+          parsed.stats = parsed.stats || { totalCopies: 0 };
+          return parsed;
+        }catch(e){
+          return seedData();
+        }
+      }
+
+      function saveState(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function showToast(text){
+        els.toast.textContent = text;
+        els.toast.classList.add("show");
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => {
+          els.toast.classList.remove("show");
+        }, 1600);
+      }
+
+      function openModal(id){
+        document.getElementById(id).classList.add("show");
+      }
+
+      function closeModal(id){
+        document.getElementById(id).classList.remove("show");
+      }
+
+      function closeAllModals(){
+        document.querySelectorAll(".modal.show").forEach(m => m.classList.remove("show"));
+      }
+
+      function escapeHtml(str=""){
+        return str
+          .replace(/&/g,"&amp;")
+          .replace(/</g,"&lt;")
+          .replace(/>/g,"&gt;")
+          .replace(/"/g,"&quot;")
+          .replace(/'/g,"&#039;");
+      }
+
+      function formatRelative(ts){
+        if(!ts) return "mai";
+        const diff = Date.now() - ts;
+        const m = Math.floor(diff / 60000);
+        if(m < 1) return "ora";
+        if(m < 60) return `${m} min fa`;
+        const h = Math.floor(m / 60);
+        if(h < 24) return `${h} h fa`;
+        const d = Math.floor(h / 24);
+        if(d < 30) return `${d} g fa`;
+        const mo = Math.floor(d / 30);
+        if(mo < 12) return `${mo} mesi fa`;
+        const y = Math.floor(mo / 12);
+        return `${y} anni fa`;
+      }
+
+      function getFolderName(folderId){
+        const f = state.folders.find(x => x.id === folderId);
+        return f ? f.name : "Senza cartella";
+      }
+
+      function parseTags(str){
+        return [...new Set(
+          str.split(",")
+            .map(s => s.trim())
+            .filter(Boolean)
+        )];
+      }
+
+      function populateFolderSelect(){
+        els.promptFolder.innerHTML = state.folders.map(f =>
+          `<option value="${f.id}">${escapeHtml(f.name)}</option>`
+        ).join("");
+      }
+
+      function renderStats(){
+        const totalPrompts = state.prompts.length;
+        const totalFolders = state.folders.length;
+        const favorites = state.prompts.filter(p => p.favorite).length;
+        const totalCopies = state.stats.totalCopies || 0;
+
+        els.statsGrid.innerHTML = `
+          <div class="stat"><div class="k">${totalPrompts}</div><div class="l">Prompt totali</div></div>
+          <div class="stat"><div class="k">${totalFolders}</div><div class="l">Cartelle</div></div>
+          <div class="stat"><div class="k">${favorites}</div><div class="l">Preferiti</div></div>
+          <div class="stat"><div class="k">${totalCopies}</div><div class="l">Copie effettuate</div></div>
+        `;
+
+        const topPrompt = [...state.prompts].sort((a,b)=>(b.copies||0)-(a.copies||0))[0];
+        els.settingsStats.innerHTML = `
+          <div class="stat"><div class="k">${totalPrompts}</div><div class="l">Prompt salvati</div></div>
+          <div class="stat"><div class="k">${totalFolders}</div><div class="l">Cartelle</div></div>
+          <div class="stat"><div class="k">${totalCopies}</div><div class="l">Copie totali</div></div>
+          <div class="stat"><div class="k">${topPrompt ? escapeHtml(topPrompt.title.slice(0,12) + (topPrompt.title.length>12 ? "…" : "")) : "-"}</div><div class="l">Più copiato</div></div>
+        `;
+      }
+
+      function renderFolders(){
+        const counts = {};
+        state.prompts.forEach(p => {
+          counts[p.folderId] = (counts[p.folderId] || 0) + 1;
+        });
+
+        const allCount = state.prompts.length;
+
+        const allChip = `
+          <div class="folder-chip ${currentFolderId === DEFAULT_FOLDER_ID ? "active" : ""}" data-folder-id="${DEFAULT_FOLDER_ID}">
+            <div class="name">Tutte</div>
+            <div class="meta">${allCount} prompt</div>
+          </div>
+        `;
+
+        const chips = state.folders.map(f => `
+          <div class="folder-chip ${currentFolderId === f.id ? "active" : ""}" data-folder-id="${f.id}">
+            <div class="name">${escapeHtml(f.name)}</div>
+            <div class="meta">${counts[f.id] || 0} prompt</div>
+          </div>
+        `).join("");
+
+        els.folderRow.innerHTML = allChip + chips;
+
+        els.folderRow.querySelectorAll("[data-folder-id]").forEach(el => {
+          el.onclick = () => {
+            currentFolderId = el.getAttribute("data-folder-id");
+            renderAll();
+          };
+        });
+      }
+
+      function getFilteredPrompts(){
+        const q = els.searchInput.value.trim().toLowerCase();
+        const filter = els.filterSelect.value;
+        const sort = els.sortSelect.value;
+
+        let items = [...state.prompts];
+
+        if(currentFolderId !== DEFAULT_FOLDER_ID){
+          items = items.filter(p => p.folderId === currentFolderId);
+        }
+
+        if(filter === "favorites"){
+          items = items.filter(p => p.favorite);
+        }else if(filter === "pinned"){
+          items = items.filter(p => p.pinned);
+        }else if(filter === "recent"){
+          const cutoff = Date.now() - 1000 * 60 * 60 * 24 * 10;
+          items = items.filter(p => (p.lastCopiedAt || 0) >= cutoff);
+        }
+
+        if(q){
+          items = items.filter(p => {
+            const hay = [
+              p.title,
+              p.body,
+              p.note || "",
+              (p.tags || []).join(" "),
+              getFolderName(p.folderId)
+            ].join(" ").toLowerCase();
+            return hay.includes(q);
+          });
+        }
+
+        items.sort((a,b) => {
+          if(a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+
+          if(sort === "copies_desc") return (b.copies||0) - (a.copies||0) || (b.updatedAt||0) - (a.updatedAt||0);
+          if(sort === "title_asc") return a.title.localeCompare(b.title, "it");
+          if(sort === "created_desc") return (b.createdAt||0) - (a.createdAt||0);
+          return (b.updatedAt||0) - (a.updatedAt||0);
+        });
+
+        return items;
+      }
+
+      function renderQuickSections(){
+        const topCopied = [...state.prompts]
+          .sort((a,b) => (b.copies||0) - (a.copies||0))
+          .slice(0,3);
+
+        const recent = [...state.prompts]
+          .filter(p => p.lastCopiedAt)
+          .sort((a,b) => (b.lastCopiedAt||0) - (a.lastCopiedAt||0))
+          .slice(0,3);
+
+        const favorites = state.prompts.filter(p => p.favorite).slice(0,3);
+
+        const card = (title, arr, icon) => `
+          <div class="card" style="margin-bottom:12px">
+            <div class="section-head" style="margin-bottom:8px">
+              <h2>${icon} ${title}</h2>
+              <span class="tiny muted">${arr.length}</span>
+            </div>
+            ${arr.length ? arr.map(p => `
+              <div style="padding:10px 0;border-top:1px solid rgba(255,255,255,.05)">
+                <div style="font-weight:700">${escapeHtml(p.title)}</div>
+                <div class="tiny muted">${escapeHtml(getFolderName(p.folderId))} · ${p.copies||0} copie</div>
+              </div>
+            `).join("") : `<div class="tiny muted">Nessun elemento</div>`}
+          </div>
+        `;
+
+        els.quickSections.innerHTML = `
+          <div class="section-head">
+            <h2>Panoramica rapida</h2>
+            <span class="tiny muted">uso reale</span>
+          </div>
+          ${card("Più usati", topCopied, "📈")}
+          ${card("Recenti", recent, "🕘")}
+          ${card("Preferiti", favorites, "⭐")}
+        `;
+      }
+
+      function promptCard(p){
+        const tagsHtml = (p.tags || []).length
+          ? `<div class="tags">${p.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join("")}</div>`
+          : "";
+
+        const noteHtml = p.note
+          ? `<div class="card-note">${escapeHtml(p.note)}</div>`
+          : "";
+
+        return `
+          <div class="card">
+            <div class="card-top">
+              <div style="min-width:0;flex:1">
+                <h3 class="card-title">${escapeHtml(p.title)}</h3>
+                <div class="card-folder">📁 ${escapeHtml(getFolderName(p.folderId))} · aggiornato ${escapeHtml(formatRelative(p.updatedAt))}</div>
+              </div>
+              <div class="flags">
+                ${p.pinned ? `<span class="flag pin">📌 Pin</span>` : ""}
+                ${p.favorite ? `<span class="flag fav">⭐ Preferito</span>` : ""}
+                <span class="flag copies">📋 ${p.copies || 0}</span>
+              </div>
+            </div>
+            <div class="card-body">${escapeHtml(p.body)}</div>
+            ${noteHtml}
+            ${tagsHtml}
+            <div class="card-actions">
+              <button class="btn-primary" data-copy="${p.id}">Copia</button>
+              <button class="btn-ghost" data-edit="${p.id}">Modifica</button>
+              <button class="btn-ghost" data-dup="${p.id}">Duplica</button>
+              <button class="btn-ghost" data-fav="${p.id}">${p.favorite ? "Unfav" : "Fav"}</button>
+              <button class="btn-ghost" data-pin="${p.id}">${p.pinned ? "Unpin" : "Pin"}</button>
+              <button class="btn-ghost" data-move="${p.id}">Cartella</button>
+              <button class="btn-danger" data-del="${p.id}">Elimina</button>
+              <button class="btn-ok" data-view="${p.id}">Apri</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderPrompts(){
+        const items = getFilteredPrompts();
+        els.resultLabel.textContent = `${items.length} prompt`;
+
+        if(!items.length){
+          els.promptList.innerHTML = `
+            <div class="empty">
+              <b>Nessun prompt trovato</b>
+              Prova a cambiare filtro, cercare meno testo oppure crea un nuovo prompt.
+            </div>
+          `;
+          return;
+        }
+
+        els.promptList.innerHTML = items.map(promptCard).join("");
+
+        els.promptList.querySelectorAll("[data-copy]").forEach(btn => {
+          btn.onclick = () => copyPrompt(btn.getAttribute("data-copy"));
+        });
+
+        els.promptList.querySelectorAll("[data-edit]").forEach(btn => {
+          btn.onclick = () => openPromptEditor(btn.getAttribute("data-edit"));
+        });
+
+        els.promptList.querySelectorAll("[data-dup]").forEach(btn => {
+          btn.onclick = () => duplicatePrompt(btn.getAttribute("data-dup"));
+        });
+
+        els.promptList.querySelectorAll("[data-fav]").forEach(btn => {
+          btn.onclick = () => toggleFavorite(btn.getAttribute("data-fav"));
+        });
+
+        els.promptList.querySelectorAll("[data-pin]").forEach(btn => {
+          btn.onclick = () => togglePinned(btn.getAttribute("data-pin"));
+        });
+
+        els.promptList.querySelectorAll("[data-del]").forEach(btn => {
+          btn.onclick = () => deletePrompt(btn.getAttribute("data-del"));
+        });
+
+        els.promptList.querySelectorAll("[data-view]").forEach(btn => {
+          btn.onclick = () => viewFullPrompt(btn.getAttribute("data-view"));
+        });
+
+        els.promptList.querySelectorAll("[data-move]").forEach(btn => {
+          btn.onclick = () => movePrompt(btn.getAttribute("data-move"));
+        });
+      }
+
+      async function copyPrompt(id){
+        const p = state.prompts.find(x => x.id === id);
+        if(!p) return;
+        try{
+          await navigator.clipboard.writeText(p.body);
+          p.copies = (p.copies || 0) + 1;
+          p.lastCopiedAt = now();
+          p.updatedAt = now();
+          state.stats.totalCopies = (state.stats.totalCopies || 0) + 1;
+          saveState();
+          renderAll();
+          showToast("Prompt copiato");
+        }catch(e){
+          showToast("Copia non riuscita");
+        }
+      }
+
+      function openPromptEditor(id=null){
+        populateFolderSelect();
+
+        if(id){
+          const p = state.prompts.find(x => x.id === id);
+          if(!p) return;
+          editingPromptId = id;
+          els.promptModalTitle.textContent = "Modifica prompt";
+          els.promptTitle.value = p.title || "";
+          els.promptFolder.value = p.folderId || (state.folders[0]?.id || "");
+          els.promptTags.value = (p.tags || []).join(", ");
+          els.promptBody.value = p.body || "";
+          els.promptNote.value = p.note || "";
+          els.promptFavorite.checked = !!p.favorite;
+          els.promptPinned.checked = !!p.pinned;
+        }else{
+          editingPromptId = null;
+          els.promptModalTitle.textContent = "Nuovo prompt";
+          els.promptTitle.value = "";
+          els.promptFolder.value = state.folders[0]?.id || "";
+          els.promptTags.value = "";
+          els.promptBody.value = "";
+          els.promptNote.value = "";
+          els.promptFavorite.checked = false;
+          els.promptPinned.checked = false;
+        }
+
+        openModal("promptModal");
+        setTimeout(() => els.promptTitle.focus(), 60);
+      }
+
+      function savePrompt(){
+        const title = els.promptTitle.value.trim();
+        const folderId = els.promptFolder.value;
+        const body = els.promptBody.value.trim();
+        const note = els.promptNote.value.trim();
+        const tags = parseTags(els.promptTags.value);
+
+        if(!title){
+          showToast("Inserisci un titolo");
+          return;
+        }
+        if(!body){
+          showToast("Inserisci il prompt");
+          return;
+        }
+        if(!folderId){
+          showToast("Crea prima una cartella");
+          return;
+        }
+
+        if(editingPromptId){
+          const p = state.prompts.find(x => x.id === editingPromptId);
+          if(!p) return;
+          p.title = title;
+          p.folderId = folderId;
+          p.body = body;
+          p.note = note;
+          p.tags = tags;
+          p.favorite = els.promptFavorite.checked;
+          p.pinned = els.promptPinned.checked;
+          p.updatedAt = now();
+          showToast("Prompt aggiornato");
+        }else{
+          state.prompts.unshift({
+            id: uid("prompt"),
+            title,
+            folderId,
+            body,
+            note,
+            tags,
+            favorite: els.promptFavorite.checked,
+            pinned: els.promptPinned.checked,
+            copies: 0,
+            lastCopiedAt: 0,
+            createdAt: now(),
+            updatedAt: now()
+          });
+          showToast("Prompt salvato");
+        }
+
+        saveState();
+        closeModal("promptModal");
+        renderAll();
+      }
+
+      function duplicatePrompt(id){
+        const p = state.prompts.find(x => x.id === id);
+        if(!p) return;
+        state.prompts.unshift({
+          ...JSON.parse(JSON.stringify(p)),
+          id: uid("prompt"),
+          title: p.title + " (copia)",
+          copies: 0,
+          lastCopiedAt: 0,
+          createdAt: now(),
+          updatedAt: now()
+        });
+        saveState();
+        renderAll();
+        showToast("Prompt duplicato");
+      }
+
+      function toggleFavorite(id){
+        const p = state.prompts.find(x => x.id === id);
+        if(!p) return;
+        p.favorite = !p.favorite;
+        p.updatedAt = now();
+        saveState();
+        renderAll();
+      }
+
+      function togglePinned(id){
+        const p = state.prompts.find(x => x.id === id);
+        if(!p) return;
+        p.pinned = !p.pinned;
+        p.updatedAt = now();
+        saveState();
+        renderAll();
+      }
+
+      function deletePrompt(id){
+        const p = state.prompts.find(x => x.id === id);
+        if(!p) return;
+        if(!confirm(`Eliminare il prompt "${p.title}"?`)) return;
+        state.prompts = state.prompts.filter(x => x.id !== id);
+        saveState();
+        renderAll();
+        showToast("Prompt eliminato");
+      }
+
+      function movePrompt(id){
+        const p = state.prompts.find(x => x.id === id);
+        if(!p) return;
+
+        if(!state.folders.length){
+          showToast("Crea prima una cartella");
+          return;
+        }
+
+        const names = state.folders.map((f, i) => `${i+1}. ${f.name}`).join("\\n");
+        const val = prompt(`Scegli il numero della nuova cartella:\\n\\n${names}`, "1");
+        if(!val) return;
+        const idx = parseInt(val, 10) - 1;
+        if(Number.isNaN(idx) || idx < 0 || idx >= state.folders.length){
+          showToast("Scelta non valida");
+          return;
+        }
+        p.folderId = state.folders[idx].id;
+        p.updatedAt = now();
+        saveState();
+        renderAll();
+        showToast("Cartella aggiornata");
+      }
+
+      function viewFullPrompt(id){
+        const p = state.prompts.find(x => x.id === id);
+        if(!p) return;
+
+        const full = [
+          p.title,
+          "",
+          "Cartella: " + getFolderName(p.folderId),
+          p.tags?.length ? "Tag: " + p.tags.join(", ") : "",
+          "",
+          p.body,
+          p.note ? "\\n\\nNota:\\n" + p.note : ""
+        ].filter(Boolean).join("\\n");
+
+        alert(full);
+      }
+
+      function saveFolder(){
+        const name = els.folderName.value.trim();
+        if(!name){
+          showToast("Inserisci un nome cartella");
+          return;
+        }
+        const exists = state.folders.some(f => f.name.toLowerCase() === name.toLowerCase());
+        if(exists){
+          showToast("Cartella già esistente");
+          return;
+        }
+        state.folders.push({
+          id: uid("folder"),
+          name,
+          createdAt: now()
+        });
+        els.folderName.value = "";
+        saveState();
+        closeModal("folderModal");
+        renderAll();
+        showToast("Cartella creata");
+      }
+
+      function exportBackup(){
+        const payload = {
+          app: "PromptDock",
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          data: state
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        const date = new Date();
+        const name = `promptdock-backup-${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}.json`;
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast("Backup esportato");
+      }
+
+      function importBackup(file){
+        const reader = new FileReader();
+        reader.onload = () => {
+          try{
+            const parsed = JSON.parse(reader.result);
+            const data = parsed.data || parsed;
+            if(!data || !Array.isArray(data.folders) || !Array.isArray(data.prompts)){
+              throw new Error("Formato non valido");
+            }
+            data.stats = data.stats || { totalCopies: 0 };
+            state = data;
+            saveState();
+            currentFolderId = DEFAULT_FOLDER_ID;
+            renderAll();
+            showToast("Backup importato");
+          }catch(e){
+            alert("File JSON non valido per PromptDock.");
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function resetAll(){
+        if(!confirm("Vuoi davvero cancellare tutti i dati dell'app?")) return;
+        if(!confirm("Conferma finale: tutti i prompt verranno eliminati.")) return;
+        state = { folders: [], prompts: [], stats: { totalCopies: 0 } };
+        saveState();
+        renderAll();
+        showToast("Dati azzerati");
+      }
+
+      function restoreDemo(){
+        if(!confirm("Ripristinare i prompt demo iniziali?")) return;
+        state = seedData();
+        saveState();
+        currentFolderId = DEFAULT_FOLDER_ID;
+        renderAll();
+        showToast("Prompt demo ripristinati");
+      }
+
+      function bindEvents(){
+        document.getElementById("fabAdd").onclick = () => openPromptEditor();
+        document.getElementById("navAdd").onclick = () => openPromptEditor();
+        document.getElementById("addFolderBtn").onclick = () => openModal("folderModal");
+        document.getElementById("saveFolderBtn").onclick = saveFolder;
+        document.getElementById("savePromptBtn").onclick = savePrompt;
+        document.getElementById("openSettingsBtn").onclick = () => openModal("settingsModal");
+
+        document.getElementById("navAll").onclick = () => {
+          els.filterSelect.value = "all";
+          currentFolderId = DEFAULT_FOLDER_ID;
+          renderAll();
+        };
+        document.getElementById("navFav").onclick = () => {
+          els.filterSelect.value = "favorites";
+          currentFolderId = DEFAULT_FOLDER_ID;
+          renderAll();
+        };
+        document.getElementById("navRecent").onclick = () => {
+          els.filterSelect.value = "recent";
+          currentFolderId = DEFAULT_FOLDER_ID;
+          renderAll();
+        };
+
+        document.getElementById("exportBtn").onclick = exportBackup;
+        document.getElementById("importBtn").onclick = () => els.importFile.click();
+        document.getElementById("resetBtn").onclick = resetAll;
+        document.getElementById("seedBtn").onclick = restoreDemo;
+
+        els.importFile.addEventListener("change", e => {
+          const file = e.target.files?.[0];
+          if(file) importBackup(file);
+          e.target.value = "";
+        });
+
+        els.searchInput.addEventListener("input", renderPrompts);
+        els.filterSelect.addEventListener("change", renderPrompts);
+        els.sortSelect.addEventListener("change", renderPrompts);
+
+        document.querySelectorAll("[data-close]").forEach(btn => {
+          btn.onclick = () => closeModal(btn.getAttribute("data-close"));
+        });
+
+        document.querySelectorAll(".modal").forEach(m => {
+          m.addEventListener("click", e => {
+            if(e.target === m) m.classList.remove("show");
+          });
+        });
+
+        document.addEventListener("keydown", e => {
+          if(e.key === "Escape") closeAllModals();
+        });
+      }
+
+      function ensureStarterFolderIfEmpty(){
+        if(!state.folders.length){
+          const f = { id: uid("folder"), name: "Generale", createdAt: now() };
+          state.folders.push(f);
+          saveState();
+        }
+      }
+
+      function renderAll(){
+        ensureStarterFolderIfEmpty();
+        populateFolderSelect();
+        renderStats();
+        renderFolders();
+        renderQuickSections();
+        renderPrompts();
+      }
+
+      bindEvents();
+      renderAll();
+
+      if("serviceWorker" in navigator){
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
