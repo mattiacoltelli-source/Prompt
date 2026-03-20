@@ -4,1414 +4,1634 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>PromptDock</title>
-
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b0f14">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="PromptDock">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#0b0f14" />
 
   <style>
     :root{
-      --bg:#0b0f14;
-      --bg2:#0f1521;
-      --card:#121824;
-      --card2:#171f2e;
-      --panel:#101722;
+      --bg:#070b12;
+      --bg2:#0b111a;
+      --panel:#0d1420;
+      --panel2:#121b2a;
+      --card:#101827;
+      --card2:#152033;
       --text:#f4f7fb;
-      --muted:#97a5b5;
-      --line:#253247;
+      --muted:#93a1b4;
+      --line:#223149;
+      --line-2:#2b3c58;
       --accent:#f5c451;
       --accent2:#4da3ff;
-      --ok:#35c975;
+      --ok:#36c275;
       --danger:#ff6b6b;
-      --shadow:0 10px 30px rgba(0,0,0,.35);
-      --shadow-soft:0 8px 22px rgba(0,0,0,.22);
-      --radius:18px;
-      --radius-sm:12px;
-      --header-h:74px;
-      --bottom-h:82px;
-      --max:980px;
+      --shadow:0 16px 36px rgba(0,0,0,.35);
+      --shadow-soft:0 10px 22px rgba(0,0,0,.24);
+      --radius:22px;
+      --radius-sm:16px;
+      --bottom-h:84px;
+      --maxw:760px;
     }
 
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    body{min-height:100vh;-webkit-tap-highlight-color:transparent}
-    button,input,textarea,select{font:inherit}
+    *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100%;
+      background:
+        radial-gradient(circle at top right, rgba(77,163,255,.08), transparent 28%),
+        radial-gradient(circle at top left, rgba(245,196,81,.06), transparent 22%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      overscroll-behavior-y:none;
+    }
+
+    body{
+      padding:14px 14px calc(var(--bottom-h) + 16px);
+    }
+
+    button,input,textarea,select{
+      font:inherit;
+    }
+
     input,textarea,select{
-      width:100%;
-      background:#0e141f;
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:14px 14px;
-      outline:none;
+      font-size:16px;
     }
-    textarea{min-height:170px;resize:vertical}
-    input:focus,textarea:focus,select:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(77,163,255,.15)}
-    button{
-      border:0;
-      border-radius:14px;
-      padding:12px 14px;
-      cursor:pointer;
-      color:var(--text);
-      background:#1a2332;
-      transition:transform .08s ease,opacity .18s ease,background .18s ease;
-    }
-    button:active{transform:scale(.98)}
-    .btn-primary{background:linear-gradient(135deg,var(--accent2),#2e80ff)}
-    .btn-warm{background:linear-gradient(135deg,var(--accent),#f2a93b); color:#151515; font-weight:700}
-    .btn-danger{background:linear-gradient(135deg,#ff7b7b,var(--danger))}
-    .btn-ghost{background:#111927;border:1px solid var(--line)}
-    .btn-ok{background:linear-gradient(135deg,#47d787,var(--ok));color:#082012;font-weight:700}
 
     .app{
-      max-width:var(--max);
+      width:100%;
+      max-width:var(--maxw);
       margin:0 auto;
-      padding-bottom:calc(var(--bottom-h) + 18px);
     }
 
-    .topbar{
-      position:sticky;
-      top:0;
-      z-index:50;
-      backdrop-filter:blur(14px);
-      background:rgba(11,15,20,.76);
-      border-bottom:1px solid rgba(255,255,255,.04);
-    }
-    .topbar-inner{
-      max-width:var(--max);
-      margin:0 auto;
-      min-height:var(--header-h);
-      padding:12px 14px;
+    .top{
       display:flex;
-      align-items:center;
+      align-items:flex-start;
+      justify-content:space-between;
       gap:12px;
+      padding:4px 2px 14px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      margin-bottom:16px;
     }
-    .brand{
-      min-width:0;
-      flex:1;
-    }
+
     .brand h1{
       margin:0;
-      font-size:1.12rem;
-      line-height:1.05;
-      letter-spacing:.2px;
+      font-size:22px;
+      line-height:1.1;
+      letter-spacing:-.02em;
     }
+
     .brand p{
-      margin:4px 0 0;
+      margin:6px 0 0;
       color:var(--muted);
-      font-size:.86rem;
+      font-size:14px;
+      line-height:1.35;
+      max-width:320px;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex:0 0 auto;
     }
 
     .icon-btn{
-      width:46px;
-      height:46px;
-      padding:0;
-      border-radius:14px;
-      background:#121b2a;
-      border:1px solid var(--line);
-      display:grid;
-      place-items:center;
-      font-size:1.12rem;
+      width:56px;
+      height:56px;
+      border:none;
+      border-radius:18px;
+      background:linear-gradient(180deg,#0f1828,#132038);
+      color:#d8e8ff;
+      box-shadow:var(--shadow-soft);
+      border:1px solid rgba(77,163,255,.18);
+      cursor:pointer;
     }
 
-    .wrap{padding:14px}
-    .searchbox{
-      position:relative;
-      margin:2px 0 14px;
-    }
-    .searchbox input{
-      padding-left:44px;
-      height:50px;
-      border-radius:16px;
-      background:#0f1724;
-    }
-    .searchbox .search-ico{
-      position:absolute;
-      left:14px;
-      top:50%;
-      transform:translateY(-50%);
-      color:var(--muted);
-      font-size:1rem;
-      pointer-events:none;
-    }
-
-    .stats-grid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:10px;
+    .search-wrap{
       margin-bottom:14px;
     }
-    .stat{
-      background:linear-gradient(180deg,var(--card),var(--card2));
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:14px;
+
+    .search{
+      width:100%;
+      height:60px;
+      border:none;
+      outline:none;
+      color:var(--text);
+      background:linear-gradient(180deg,#0f1828,#111d31);
+      border:1px solid rgba(77,163,255,.20);
+      border-radius:20px;
+      padding:0 18px;
       box-shadow:var(--shadow-soft);
     }
-    .stat .k{
-      font-size:1.4rem;
-      font-weight:800;
-      margin-bottom:4px;
+
+    .search::placeholder{
+      color:#8b99ac;
     }
-    .stat .l{
+
+    .stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .stat{
+      background:linear-gradient(180deg,#101827,#131f32);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:22px;
+      padding:16px;
+      box-shadow:var(--shadow-soft);
+      min-height:98px;
+    }
+
+    .stat-value{
+      font-size:24px;
+      font-weight:800;
+      line-height:1;
+      margin-bottom:8px;
+    }
+
+    .stat-label{
       color:var(--muted);
-      font-size:.86rem;
+      font-size:13px;
+      line-height:1.2;
     }
 
     .section{
-      margin:18px 0 12px;
+      margin-bottom:18px;
     }
+
     .section-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .section-head h2{
+      margin:0;
+      font-size:18px;
+      line-height:1.1;
+    }
+
+    .section-sub{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .folders-row{
+      display:flex;
+      gap:12px;
+      overflow:auto;
+      padding-bottom:4px;
+      scrollbar-width:none;
+    }
+
+    .folders-row::-webkit-scrollbar{
+      display:none;
+    }
+
+    .folder-card{
+      min-width:150px;
+      background:linear-gradient(180deg,#101827,#131f32);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:22px;
+      padding:16px;
+      box-shadow:var(--shadow-soft);
+      cursor:pointer;
+      text-align:left;
+      color:var(--text);
+    }
+
+    .folder-card.active{
+      border-color:rgba(77,163,255,.42);
+      box-shadow:0 0 0 2px rgba(77,163,255,.14), var(--shadow-soft);
+    }
+
+    .folder-title{
+      font-size:17px;
+      font-weight:800;
+      margin-bottom:8px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .folder-meta{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .folder-add{
+      min-width:146px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      font-weight:800;
+    }
+
+    .toolbar{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .select{
+      width:100%;
+      height:56px;
+      border:none;
+      outline:none;
+      color:var(--text);
+      background:linear-gradient(180deg,#101827,#131f32);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:0 16px;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .list-head{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
       margin-bottom:10px;
     }
-    .section-head h2{
-      margin:0;
-      font-size:1rem;
-      letter-spacing:.2px;
-    }
-    .muted{color:var(--muted)}
-    .tiny{font-size:.82rem}
 
-    .folder-row{
-      display:flex;
-      gap:10px;
-      overflow:auto;
-      padding-bottom:2px;
-      scrollbar-width:none;
-    }
-    .folder-row::-webkit-scrollbar{display:none}
-    .folder-chip{
-      min-width:138px;
-      background:linear-gradient(180deg,#131c2a,#111825);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:12px 12px;
-      box-shadow:var(--shadow-soft);
-      cursor:pointer;
-    }
-    .folder-chip.active{
-      outline:2px solid rgba(77,163,255,.32);
-      border-color:#3a6fb7;
-    }
-    .folder-chip .name{
-      font-weight:700;
-      margin-bottom:6px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .folder-chip .meta{
+    .list-count{
       color:var(--muted);
-      font-size:.82rem;
+      font-size:13px;
     }
 
-    .toolbar{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-bottom:12px;
-    }
-
-    .prompts{
+    .prompt-list{
       display:grid;
       gap:12px;
     }
+
     .card{
-      background:linear-gradient(180deg,var(--card),var(--card2));
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:14px;
-      box-shadow:var(--shadow);
+      background:linear-gradient(180deg,#101827,#131f32);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:22px;
+      padding:16px;
+      box-shadow:var(--shadow-soft);
     }
+
     .card-top{
       display:flex;
-      gap:10px;
       align-items:flex-start;
       justify-content:space-between;
+      gap:12px;
     }
+
     .card-title{
       margin:0;
-      font-size:1rem;
-      line-height:1.22;
+      font-size:18px;
+      line-height:1.2;
+      letter-spacing:-.01em;
     }
-    .card-folder{
-      display:inline-flex;
-      margin-top:8px;
-      color:var(--muted);
-      font-size:.82rem;
-      gap:6px;
-      align-items:center;
-    }
-    .flags{
-      display:flex;
-      gap:6px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .flag{
-      font-size:.72rem;
-      padding:6px 8px;
-      border-radius:999px;
-      background:#0f1724;
-      border:1px solid var(--line);
-      color:#dbe5f4;
-    }
-    .flag.pin{border-color:#7f631f;color:#ffdf8a}
-    .flag.fav{border-color:#8e6a1f;color:#ffd770}
-    .flag.copies{border-color:#2e568e;color:#8ec1ff}
 
-    .card-body{
-      margin-top:12px;
-      white-space:pre-wrap;
-      color:#e8eef7;
-      line-height:1.48;
-      font-size:.95rem;
-      display:-webkit-box;
-      -webkit-line-clamp:6;
-      -webkit-box-orient:vertical;
-      overflow:hidden;
-    }
-    .card-note{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      background:#0f1724;
-      border:1px dashed var(--line);
-      color:#bfd0e4;
-      font-size:.85rem;
-      white-space:pre-wrap;
-    }
-    .tags{
+    .card-meta{
+      margin-top:8px;
       display:flex;
       flex-wrap:wrap;
       gap:8px;
-      margin-top:12px;
     }
-    .tag{
-      padding:6px 9px;
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:7px 10px;
       border-radius:999px;
-      background:#0f1724;
+      font-size:12px;
+      color:#d9e5f3;
+      background:#0f1828;
       border:1px solid var(--line);
-      color:#bcd0e6;
-      font-size:.78rem;
+    }
+
+    .badge.favorite{
+      background:rgba(245,196,81,.12);
+      color:#ffe39c;
+      border-color:rgba(245,196,81,.24);
+    }
+
+    .badge.featured{
+      background:rgba(77,163,255,.13);
+      color:#cfe7ff;
+      border-color:rgba(77,163,255,.26);
+    }
+
+    .copy-badge{
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .prompt-preview{
+      margin-top:12px;
+      color:#d6deea;
+      font-size:14px;
+      line-height:1.5;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+
+    .tags{
+      margin-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .tag{
+      font-size:12px;
+      color:#c6d2e1;
+      background:#0f1828;
+      border:1px solid var(--line);
+      padding:7px 10px;
+      border-radius:999px;
     }
 
     .card-actions{
       display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:8px;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
       margin-top:14px;
     }
-    .card-actions button{
-      padding:11px 8px;
-      font-size:.85rem;
-      border-radius:12px;
+
+    .btn{
+      height:46px;
+      border:none;
+      border-radius:16px;
+      cursor:pointer;
+      font-weight:800;
+      padding:0 14px;
+    }
+
+    .btn-primary{
+      background:linear-gradient(180deg,#f6cc61,#efb93b);
+      color:#221807;
+      box-shadow:0 10px 22px rgba(245,196,81,.18);
+    }
+
+    .btn-secondary{
+      background:#162234;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+
+    .btn-soft{
+      background:#101827;
+      color:#d9e6f7;
+      border:1px solid var(--line);
+    }
+
+    .btn-danger{
+      background:rgba(255,107,107,.12);
+      color:#ffc1c1;
+      border:1px solid rgba(255,107,107,.22);
+    }
+
+    .btn-small{
+      height:42px;
+      border-radius:14px;
+      font-size:14px;
+    }
+
+    .empty{
+      background:linear-gradient(180deg,#101827,#131f32);
+      border:1px dashed var(--line-2);
+      border-radius:22px;
+      padding:22px 16px;
+      color:var(--muted);
+      text-align:center;
+      line-height:1.5;
     }
 
     .bottom-bar{
       position:fixed;
       left:50%;
-      transform:translateX(-50%);
       bottom:max(10px, env(safe-area-inset-bottom));
-      width:min(calc(100% - 18px), calc(var(--max) - 18px));
-      z-index:70;
+      transform:translateX(-50%);
+      width:min(calc(100% - 16px), 760px);
+      background:rgba(10,16,25,.92);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 18px 40px rgba(0,0,0,.36);
+      backdrop-filter:blur(12px);
+      border-radius:24px;
+      padding:10px;
       display:grid;
-      grid-template-columns:1fr 1fr 1.15fr 1fr;
-      gap:8px;
-      padding:8px;
-      background:rgba(14,20,31,.9);
-      border:1px solid rgba(255,255,255,.05);
-      border-radius:22px;
-      backdrop-filter:blur(18px);
-      box-shadow:0 10px 30px rgba(0,0,0,.34);
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      z-index:30;
     }
-    .bottom-bar button{
-      min-height:52px;
-      border-radius:16px;
-      background:#111927;
-      border:1px solid var(--line);
-      font-size:.82rem;
-    }
-    .bottom-bar .main-add{
-      background:linear-gradient(135deg,var(--accent2),#2d80ff);
+
+    .nav-btn{
+      height:58px;
+      border:none;
+      border-radius:18px;
+      background:#0e1522;
+      color:#e6eef9;
       font-weight:800;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.07);
+    }
+
+    .nav-btn.active{
+      background:linear-gradient(180deg,#5aa8ff,#3d8fff);
+      color:white;
+      box-shadow:0 12px 24px rgba(77,163,255,.22);
     }
 
     .fab{
       position:fixed;
-      right:16px;
-      bottom:calc(var(--bottom-h) + 22px);
-      z-index:60;
-      width:58px;
-      height:58px;
-      border-radius:18px;
-      background:linear-gradient(135deg,var(--accent),#f2a93b);
-      color:#101010;
-      font-size:1.7rem;
-      font-weight:800;
-      box-shadow:0 12px 28px rgba(242,169,59,.28);
+      right:18px;
+      bottom:110px;
+      width:72px;
+      height:72px;
+      border:none;
+      border-radius:24px;
+      background:linear-gradient(180deg,#f6cc61,#efb93b);
+      color:#201704;
+      font-size:34px;
+      font-weight:900;
+      box-shadow:0 16px 30px rgba(245,196,81,.25);
+      cursor:pointer;
+      z-index:29;
     }
 
-    .empty{
-      background:linear-gradient(180deg,#111928,#0f1622);
-      border:1px dashed var(--line);
-      border-radius:20px;
-      padding:26px 16px;
-      text-align:center;
-      color:var(--muted);
-    }
-    .empty b{display:block;color:var(--text);margin-bottom:8px;font-size:1rem}
-
-    .modal{
+    .overlay{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,.58);
+      background:rgba(4,8,14,.74);
+      backdrop-filter:blur(4px);
       display:none;
       align-items:flex-end;
       justify-content:center;
-      z-index:100;
-      padding:0;
+      z-index:60;
+      padding:12px;
     }
-    .modal.show{display:flex}
+
+    .overlay.open{
+      display:flex;
+    }
+
     .sheet{
       width:100%;
-      max-width:var(--max);
+      max-width:760px;
       max-height:92vh;
       overflow:auto;
-      background:linear-gradient(180deg,#131b29,#101722);
-      border-top-left-radius:26px;
-      border-top-right-radius:26px;
-      border:1px solid rgba(255,255,255,.05);
-      padding:16px 14px 22px;
-      box-shadow:0 -10px 30px rgba(0,0,0,.35);
+      background:linear-gradient(180deg,#101827,#131f32);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:28px 28px 18px 18px;
+      box-shadow:0 30px 70px rgba(0,0,0,.45);
+      padding:16px;
     }
-    .sheet-handle{
-      width:54px;height:5px;border-radius:999px;background:#344156;margin:4px auto 14px;
-    }
-    .modal-head{
+
+    .sheet-head{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      margin-bottom:12px;
+      margin-bottom:14px;
     }
-    .modal-head h3{margin:0;font-size:1.05rem}
-    .field{margin-bottom:12px}
-    .field label{
-      display:block;
-      margin:0 0 7px;
-      color:#c9d6e4;
-      font-size:.9rem;
-      font-weight:600;
+
+    .sheet-title{
+      margin:0;
+      font-size:20px;
+      line-height:1.1;
     }
-    .row-2{
+
+    .close-btn{
+      width:46px;
+      height:46px;
+      border:none;
+      border-radius:14px;
+      background:#0f1828;
+      color:white;
+      border:1px solid var(--line);
+      cursor:pointer;
+      flex:0 0 auto;
+    }
+
+    .form-grid{
+      display:grid;
+      gap:10px;
+    }
+
+    .input,.textarea{
+      width:100%;
+      border:none;
+      outline:none;
+      color:var(--text);
+      background:#0d1522;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 15px;
+    }
+
+    .textarea{
+      min-height:170px;
+      resize:vertical;
+    }
+
+    .helper{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+      margin-top:8px;
+    }
+
+    .sheet-actions{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
-    }
-    .toggle-row{
-      display:flex;
-      gap:10px;
-      margin:8px 0 2px;
-      flex-wrap:wrap;
-    }
-    .toggle{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      background:#0f1724;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px 12px;
-      color:#d4dfec;
-      font-size:.9rem;
+      margin-top:14px;
     }
 
-    .settings-list{
+    .check-row{
       display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      height:52px;
+      padding:0 14px;
+      background:#0d1522;
+      border:1px solid var(--line);
+      border-radius:16px;
+      color:#dbe6f3;
+      cursor:pointer;
+    }
+
+    .toggle input{
+      accent-color:var(--accent2);
+      width:18px;
+      height:18px;
+    }
+
+    .sheet-block{
+      margin-bottom:14px;
+    }
+
+    .danger-row{
+      margin-top:14px;
+    }
+
+    .mini-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
       gap:10px;
       margin-top:12px;
-    }
-    .settings-list button{
-      min-height:52px;
-      text-align:left;
-      padding:14px;
-      border-radius:16px;
-      background:#111927;
-      border:1px solid var(--line);
     }
 
     .toast{
       position:fixed;
       left:50%;
-      transform:translateX(-50%) translateY(20px);
-      bottom:calc(var(--bottom-h) + 98px);
-      background:#0d1624;
-      color:#f4f7fb;
-      border:1px solid var(--line);
-      padding:12px 14px;
-      border-radius:14px;
+      bottom:175px;
+      transform:translateX(-50%) translateY(10px);
+      background:rgba(10,16,25,.96);
+      color:#eef5ff;
+      border:1px solid rgba(255,255,255,.10);
       box-shadow:var(--shadow);
+      padding:12px 16px;
+      border-radius:16px;
+      z-index:80;
       opacity:0;
       pointer-events:none;
-      transition:all .22s ease;
-      z-index:120;
-      max-width:calc(100% - 24px);
+      transition:opacity .18s ease, transform .18s ease;
+      max-width:min(90vw,420px);
       text-align:center;
     }
+
     .toast.show{
       opacity:1;
       transform:translateX(-50%) translateY(0);
     }
 
-    .desktop-space{height:0}
+    @media (min-width:700px){
+      body{
+        padding:20px 18px calc(var(--bottom-h) + 24px);
+      }
 
-    @media (min-width:760px){
-      .wrap{padding:18px}
-      .stats-grid{grid-template-columns:repeat(4,1fr)}
-      .toolbar{grid-template-columns:1fr 220px}
-      .sheet{border-radius:26px; max-height:90vh; margin:18px}
-      .modal{align-items:center;padding:18px}
-      .bottom-bar{
+      .brand h1{
+        font-size:28px;
+      }
+
+      .stats{
         grid-template-columns:repeat(4,1fr);
       }
-      .desktop-space{height:8px}
+
+      .card-actions{
+        grid-template-columns:repeat(4,1fr);
+      }
+
+      .form-grid.two{
+        grid-template-columns:1fr 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="topbar-inner">
+  <div class="app">
+    <header class="top">
       <div class="brand">
         <h1>PromptDock</h1>
-        <p>Archivio prompt personale, veloce e installabile</p>
+        <p>Archivio prompt personale, veloce, chiaro e più vicino a una vera app.</p>
       </div>
-      <button class="icon-btn" id="openSettingsBtn" title="Impostazioni">⚙️</button>
+
+      <div class="top-actions">
+        <button class="icon-btn" id="backupBtn" aria-label="Backup e impostazioni">⚙️</button>
+      </div>
+    </header>
+
+    <section class="search-wrap">
+      <input id="searchInput" class="search" type="text" placeholder="🔎 Cerca in titolo, prompt, tag..." />
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-value" id="statPrompts">0</div>
+        <div class="stat-label">Prompt totali</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statFolders">0</div>
+        <div class="stat-label">Cartelle</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statFavorites">0</div>
+        <div class="stat-label">Preferiti</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statCopies">0</div>
+        <div class="stat-label">Copie effettuate</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Cartelle</h2>
+        <div class="section-sub" id="folderInfoText">Tutte le cartelle</div>
+      </div>
+
+      <div class="folders-row" id="foldersRow"></div>
+    </section>
+
+    <section class="section">
+      <div class="toolbar">
+        <select id="viewSelect" class="select">
+          <option value="all">Tutti</option>
+          <option value="favorites">Preferiti</option>
+          <option value="featured">In evidenza</option>
+          <option value="recent">Recenti</option>
+        </select>
+
+        <select id="sortSelect" class="select">
+          <option value="recent">Più recenti</option>
+          <option value="title">Titolo A-Z</option>
+          <option value="copies">Più copiati</option>
+        </select>
+      </div>
+
+      <div class="list-head">
+        <h2 id="listTitle">Prompt</h2>
+        <div class="list-count" id="listCount">0 prompt</div>
+      </div>
+
+      <div class="prompt-list" id="promptList"></div>
+    </section>
+  </div>
+
+  <button class="fab" id="fabBtn" aria-label="Nuovo prompt">+</button>
+
+  <nav class="bottom-bar">
+    <button class="nav-btn active" data-nav="all">Tutti</button>
+    <button class="nav-btn" data-nav="favorites">Preferiti</button>
+    <button class="nav-btn" data-nav="new">Nuovo</button>
+    <button class="nav-btn" data-nav="recent">Recenti</button>
+  </nav>
+
+  <div class="overlay" id="editorOverlay">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h3 class="sheet-title" id="editorTitle">Nuovo prompt</h3>
+        <button class="close-btn" id="closeEditorBtn">✕</button>
+      </div>
+
+      <div class="form-grid sheet-block">
+        <input id="promptTitleInput" class="input" type="text" placeholder="Titolo prompt" />
+      </div>
+
+      <div class="form-grid two sheet-block">
+        <select id="promptFolderSelect" class="input"></select>
+        <input id="promptTagsInput" class="input" type="text" placeholder="Tag separati da virgola" />
+      </div>
+
+      <div class="form-grid sheet-block">
+        <textarea id="promptTextInput" class="textarea" placeholder="Scrivi qui il prompt completo"></textarea>
+      </div>
+
+      <div class="check-row">
+        <label class="toggle">
+          <input type="checkbox" id="promptFavoriteInput" />
+          <span>Preferito</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="promptFeaturedInput" />
+          <span>Metti in evidenza</span>
+        </label>
+      </div>
+
+      <div class="helper">
+        Tieni solo quello che ti serve davvero: titolo, cartella, testo, tag facoltativi.
+      </div>
+
+      <div class="sheet-actions">
+        <button class="btn btn-primary" id="savePromptBtn">Salva</button>
+        <button class="btn btn-secondary" id="cancelPromptBtn">Annulla</button>
+      </div>
+
+      <div class="danger-row" id="deletePromptWrap" style="display:none;">
+        <button class="btn btn-danger" id="deletePromptBtn" style="width:100%;">Elimina prompt</button>
+      </div>
     </div>
   </div>
 
-  <div class="app">
-    <div class="wrap">
-      <div class="searchbox">
-        <span class="search-ico">🔎</span>
-        <input id="searchInput" type="text" placeholder="Cerca in titolo, prompt, tag, note..." />
+  <div class="overlay" id="folderOverlay">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h3 class="sheet-title">Nuova cartella</h3>
+        <button class="close-btn" id="closeFolderBtn">✕</button>
       </div>
 
-      <div class="stats-grid" id="statsGrid"></div>
-
-      <div class="section">
-        <div class="section-head">
-          <h2>Cartelle</h2>
-          <button class="btn-ghost" id="addFolderBtn">+ Nuova</button>
-        </div>
-        <div class="folder-row" id="folderRow"></div>
+      <div class="sheet-block">
+        <input id="folderNameInput" class="input" type="text" placeholder="Nome cartella" />
+        <div class="helper">Esempi: Sviluppo app, Film, Marketing, Lavoro.</div>
       </div>
 
-      <div class="section">
-        <div class="section-head">
-          <h2>Vista prompt</h2>
-          <span class="muted tiny" id="resultLabel">0 prompt</span>
-        </div>
-        <div class="toolbar">
-          <select id="filterSelect">
-            <option value="all">Tutti</option>
-            <option value="favorites">Solo preferiti</option>
-            <option value="pinned">Solo fissati</option>
-            <option value="recent">Usati di recente</option>
-          </select>
-          <select id="sortSelect">
-            <option value="updated_desc">Più recenti</option>
-            <option value="copies_desc">Più copiati</option>
-            <option value="title_asc">Titolo A-Z</option>
-            <option value="created_desc">Creati di recente</option>
-          </select>
-        </div>
-
-        <div class="section" id="quickSections"></div>
-
-        <div class="prompts" id="promptList"></div>
-        <div class="desktop-space"></div>
+      <div class="sheet-actions">
+        <button class="btn btn-primary" id="saveFolderBtn">Crea cartella</button>
+        <button class="btn btn-secondary" id="cancelFolderBtn">Annulla</button>
       </div>
     </div>
   </div>
 
-  <button class="fab" id="fabAdd" title="Nuovo prompt">＋</button>
+  <div class="overlay" id="detailOverlay">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h3 class="sheet-title" id="detailTitle">Dettaglio prompt</h3>
+        <button class="close-btn" id="closeDetailBtn">✕</button>
+      </div>
 
-  <div class="bottom-bar">
-    <button id="navAll">Tutti</button>
-    <button id="navFav">Preferiti</button>
-    <button class="main-add" id="navAdd">Nuovo</button>
-    <button id="navRecent">Recenti</button>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="backupOverlay">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h3 class="sheet-title">Backup dati</h3>
+        <button class="close-btn" id="closeBackupBtn">✕</button>
+      </div>
+
+      <div class="mini-actions">
+        <button class="btn btn-secondary btn-small" id="exportBtn">Esporta JSON</button>
+        <button class="btn btn-secondary btn-small" id="importBtn">Importa JSON</button>
+      </div>
+
+      <div class="mini-actions">
+        <button class="btn btn-secondary btn-small" id="seedBtn">Carica demo</button>
+        <button class="btn btn-danger btn-small" id="clearAllBtn">Cancella tutto</button>
+      </div>
+
+      <input id="importFileInput" type="file" accept=".json,application/json" style="display:none;" />
+
+      <div class="helper" style="margin-top:12px;">
+        Usa export/import per non perdere i prompt. La demo serve solo per testare l'app.
+      </div>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
 
-  <!-- MODAL PROMPT -->
-  <div class="modal" id="promptModal">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="modal-head">
-        <h3 id="promptModalTitle">Nuovo prompt</h3>
-        <button class="icon-btn" data-close="promptModal">✕</button>
-      </div>
-
-      <div class="field">
-        <label for="promptTitle">Titolo</label>
-        <input id="promptTitle" type="text" placeholder="Es. Report trimestrale, analisi film, studio azienda..." />
-      </div>
-
-      <div class="row-2">
-        <div class="field">
-          <label for="promptFolder">Cartella</label>
-          <select id="promptFolder"></select>
-        </div>
-        <div class="field">
-          <label for="promptTags">Tag</label>
-          <input id="promptTags" type="text" placeholder="finanza, report, chatgpt" />
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="promptBody">Prompt</label>
-        <textarea id="promptBody" placeholder="Scrivi qui il tuo prompt completo..."></textarea>
-      </div>
-
-      <div class="field">
-        <label for="promptNote">Nota privata (opzionale)</label>
-        <textarea id="promptNote" style="min-height:100px" placeholder="Note personali, contesto, varianti, quando usarlo..."></textarea>
-      </div>
-
-      <div class="toggle-row">
-        <label class="toggle"><input type="checkbox" id="promptFavorite"> Preferito</label>
-        <label class="toggle"><input type="checkbox" id="promptPinned"> Fissato in alto</label>
-      </div>
-
-      <div class="toggle-row" style="margin-top:14px">
-        <button class="btn-primary" id="savePromptBtn">Salva prompt</button>
-        <button class="btn-ghost" data-close="promptModal">Annulla</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL FOLDER -->
-  <div class="modal" id="folderModal">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="modal-head">
-        <h3>Nuova cartella</h3>
-        <button class="icon-btn" data-close="folderModal">✕</button>
-      </div>
-
-      <div class="field">
-        <label for="folderName">Nome cartella</label>
-        <input id="folderName" type="text" placeholder="Es. Finanza, Report, Lavoro, Idee..." />
-      </div>
-
-      <div class="toggle-row">
-        <button class="btn-primary" id="saveFolderBtn">Salva cartella</button>
-        <button class="btn-ghost" data-close="folderModal">Annulla</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL SETTINGS -->
-  <div class="modal" id="settingsModal">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="modal-head">
-        <h3>Impostazioni</h3>
-        <button class="icon-btn" data-close="settingsModal">✕</button>
-      </div>
-
-      <div class="stats-grid" id="settingsStats"></div>
-
-      <div class="settings-list">
-        <button id="exportBtn">📤 Esporta backup JSON</button>
-        <button id="importBtn">📥 Importa backup JSON</button>
-        <button id="seedBtn">✨ Ripristina prompt demo</button>
-        <button id="resetBtn">🗑️ Reset completo dati</button>
-      </div>
-
-      <input id="importFile" type="file" accept="application/json" style="display:none" />
-
-      <div style="margin-top:14px" class="muted tiny">
-        I dati sono salvati sul tuo dispositivo con localStorage.  
-        Usa spesso l’export JSON per tenere un backup.
-      </div>
-    </div>
-  </div>
-
   <script>
-    (() => {
-      const STORAGE_KEY = "promptdock_v1";
-      const DEFAULT_FOLDER_ID = "all";
-      let state = loadState();
-      let currentFolderId = DEFAULT_FOLDER_ID;
-      let editingPromptId = null;
+    const STORAGE_KEY = "promptdock_lite_premium_v1";
 
-      const els = {
-        statsGrid: document.getElementById("statsGrid"),
-        folderRow: document.getElementById("folderRow"),
-        promptList: document.getElementById("promptList"),
-        quickSections: document.getElementById("quickSections"),
-        resultLabel: document.getElementById("resultLabel"),
-        searchInput: document.getElementById("searchInput"),
-        filterSelect: document.getElementById("filterSelect"),
-        sortSelect: document.getElementById("sortSelect"),
-        toast: document.getElementById("toast"),
-
-        promptModal: document.getElementById("promptModal"),
-        folderModal: document.getElementById("folderModal"),
-        settingsModal: document.getElementById("settingsModal"),
-
-        promptModalTitle: document.getElementById("promptModalTitle"),
-        promptTitle: document.getElementById("promptTitle"),
-        promptFolder: document.getElementById("promptFolder"),
-        promptTags: document.getElementById("promptTags"),
-        promptBody: document.getElementById("promptBody"),
-        promptNote: document.getElementById("promptNote"),
-        promptFavorite: document.getElementById("promptFavorite"),
-        promptPinned: document.getElementById("promptPinned"),
-
-        folderName: document.getElementById("folderName"),
-
-        settingsStats: document.getElementById("settingsStats"),
-        importFile: document.getElementById("importFile")
-      };
-
-      function uid(prefix="id"){
-        return prefix + "_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
-      }
-
-      function now(){ return Date.now(); }
-
-      function seedData(){
-        const folder1 = { id: uid("folder"), name: "Finanza", createdAt: now() };
-        const folder2 = { id: uid("folder"), name: "Report", createdAt: now() };
-        const folder3 = { id: uid("folder"), name: "Idee", createdAt: now() };
-
-        const prompt1 = {
-          id: uid("prompt"),
-          title: "Analisi azienda rapida",
-          folderId: folder1.id,
-          body: "Analizza questa azienda come se fossi un analista finanziario. Voglio: modello di business, vantaggi competitivi, rischi principali, qualità del management, debito, margini, crescita, valutazione qualitativa finale e 3 domande chiave da approfondire.",
-          note: "Utile quando voglio una prima lettura veloce ma ordinata.",
-          tags: ["finanza","azienda","analisi"],
-          favorite: true,
-          pinned: true,
-          copies: 3,
-          lastCopiedAt: now() - 1000 * 60 * 60,
-          createdAt: now() - 1000 * 60 * 60 * 24 * 3,
-          updatedAt: now() - 1000 * 60 * 60 * 5
-        };
-
-        const prompt2 = {
-          id: uid("prompt"),
-          title: "Report sintetico professionale",
-          folderId: folder2.id,
-          body: "Trasforma queste note in un report professionale, pulito e leggibile. Strutturalo con: contesto, punti principali, criticità, azioni consigliate, conclusione finale. Tono chiaro e non ridondante.",
-          note: "",
-          tags: ["report","lavoro","sintesi"],
-          favorite: true,
-          pinned: false,
-          copies: 1,
-          lastCopiedAt: now() - 1000 * 60 * 60 * 9,
-          createdAt: now() - 1000 * 60 * 60 * 24 * 2,
-          updatedAt: now() - 1000 * 60 * 60 * 7
-        };
-
-        const prompt3 = {
-          id: uid("prompt"),
-          title: "Brainstorming idee migliorate",
-          folderId: folder3.id,
-          body: "Dammi 10 idee migliori a partire da questa idea iniziale. Per ogni idea indica: perché è interessante, per chi è utile, quanto è semplice realizzarla, e come renderla più concreta subito.",
-          note: "Ottimo per progetti app e mini tool.",
-          tags: ["idee","brainstorming","progetti"],
+    const DEFAULT_DATA = {
+      folders: [
+        { id: "all", name: "Tutte", system: true },
+        { id: "sviluppo-app", name: "Sviluppo app" },
+        { id: "film", name: "Film" },
+        { id: "idee", name: "Idee" }
+      ],
+      prompts: [
+        {
+          id: uid(),
+          title: "Index starter pack +",
+          folderId: "sviluppo-app",
+          tags: ["starter","html","app"],
+          text: "Agisci come un senior software engineer, product designer e architect di web app, specializzato nella creazione di mini-app intelligenti, leggere e pubblicabili su GitHub Pages...",
           favorite: false,
-          pinned: false,
-          copies: 2,
-          lastCopiedAt: now() - 1000 * 60 * 60 * 30,
-          createdAt: now() - 1000 * 60 * 60 * 24,
-          updatedAt: now() - 1000 * 60 * 60 * 12
-        };
+          featured: true,
+          copyCount: 3,
+          createdAt: Date.now() - 800000,
+          updatedAt: Date.now() - 700000
+        },
+        {
+          id: uid(),
+          title: "Film thriller consigliati",
+          folderId: "film",
+          tags: ["film","thriller"],
+          text: "Dammi 30 film thriller psicologici con twist finale, evitando i titoli troppo scontati e cercando roba davvero nelle mie corde...",
+          favorite: false,
+          featured: false,
+          copyCount: 1,
+          createdAt: Date.now() - 600000,
+          updatedAt: Date.now() - 500000
+        },
+        {
+          id: uid(),
+          title: "Idea app personale",
+          folderId: "idee",
+          tags: ["idee","utility"],
+          text: "Proponimi una mini app personale, utile davvero, semplice da sviluppare con HTML CSS JS vanilla e pubblicabile su GitHub Pages...",
+          favorite: true,
+          featured: false,
+          copyCount: 2,
+          createdAt: Date.now() - 400000,
+          updatedAt: Date.now() - 350000
+        }
+      ],
+      totalCopies: 6
+    };
 
-        return {
-          folders: [folder1, folder2, folder3],
-          prompts: [prompt1, prompt2, prompt3],
-          stats: {
-            totalCopies: 6
+    const state = {
+      data: loadData(),
+      activeFolderId: "all",
+      view: "all",
+      sort: "recent",
+      editingPromptId: null
+    };
+
+    const els = {
+      searchInput: document.getElementById("searchInput"),
+      statPrompts: document.getElementById("statPrompts"),
+      statFolders: document.getElementById("statFolders"),
+      statFavorites: document.getElementById("statFavorites"),
+      statCopies: document.getElementById("statCopies"),
+      folderInfoText: document.getElementById("folderInfoText"),
+      foldersRow: document.getElementById("foldersRow"),
+      viewSelect: document.getElementById("viewSelect"),
+      sortSelect: document.getElementById("sortSelect"),
+      listTitle: document.getElementById("listTitle"),
+      listCount: document.getElementById("listCount"),
+      promptList: document.getElementById("promptList"),
+      fabBtn: document.getElementById("fabBtn"),
+      backupBtn: document.getElementById("backupBtn"),
+      navBtns: Array.from(document.querySelectorAll(".nav-btn")),
+      editorOverlay: document.getElementById("editorOverlay"),
+      editorTitle: document.getElementById("editorTitle"),
+      closeEditorBtn: document.getElementById("closeEditorBtn"),
+      promptTitleInput: document.getElementById("promptTitleInput"),
+      promptFolderSelect: document.getElementById("promptFolderSelect"),
+      promptTagsInput: document.getElementById("promptTagsInput"),
+      promptTextInput: document.getElementById("promptTextInput"),
+      promptFavoriteInput: document.getElementById("promptFavoriteInput"),
+      promptFeaturedInput: document.getElementById("promptFeaturedInput"),
+      savePromptBtn: document.getElementById("savePromptBtn"),
+      cancelPromptBtn: document.getElementById("cancelPromptBtn"),
+      deletePromptWrap: document.getElementById("deletePromptWrap"),
+      deletePromptBtn: document.getElementById("deletePromptBtn"),
+      folderOverlay: document.getElementById("folderOverlay"),
+      closeFolderBtn: document.getElementById("closeFolderBtn"),
+      folderNameInput: document.getElementById("folderNameInput"),
+      saveFolderBtn: document.getElementById("saveFolderBtn"),
+      cancelFolderBtn: document.getElementById("cancelFolderBtn"),
+      detailOverlay: document.getElementById("detailOverlay"),
+      detailTitle: document.getElementById("detailTitle"),
+      detailContent: document.getElementById("detailContent"),
+      closeDetailBtn: document.getElementById("closeDetailBtn"),
+      backupOverlay: document.getElementById("backupOverlay"),
+      closeBackupBtn: document.getElementById("closeBackupBtn"),
+      exportBtn: document.getElementById("exportBtn"),
+      importBtn: document.getElementById("importBtn"),
+      seedBtn: document.getElementById("seedBtn"),
+      clearAllBtn: document.getElementById("clearAllBtn"),
+      importFileInput: document.getElementById("importFileInput"),
+      toast: document.getElementById("toast")
+    };
+
+    init();
+
+    function init(){
+      bindEvents();
+      render();
+    }
+
+    function bindEvents(){
+      els.searchInput.addEventListener("input", render);
+      els.viewSelect.addEventListener("change", () => {
+        state.view = els.viewSelect.value;
+        syncBottomNav();
+        render();
+      });
+      els.sortSelect.addEventListener("change", () => {
+        state.sort = els.sortSelect.value;
+        render();
+      });
+
+      els.fabBtn.addEventListener("click", openNewPromptEditor);
+      els.backupBtn.addEventListener("click", () => openOverlay(els.backupOverlay));
+
+      els.navBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const nav = btn.dataset.nav;
+          if(nav === "new"){
+            openNewPromptEditor();
+            return;
           }
-        };
-      }
+          state.view = nav;
+          els.viewSelect.value = nav;
+          syncBottomNav();
+          render();
+        });
+      });
 
-      function loadState(){
-        try{
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if(!raw){
-            return seedData();
+      els.closeEditorBtn.addEventListener("click", closeEditor);
+      els.cancelPromptBtn.addEventListener("click", closeEditor);
+      els.savePromptBtn.addEventListener("click", savePromptFromEditor);
+      els.deletePromptBtn.addEventListener("click", deleteEditingPrompt);
+
+      els.closeFolderBtn.addEventListener("click", closeFolderEditor);
+      els.cancelFolderBtn.addEventListener("click", closeFolderEditor);
+      els.saveFolderBtn.addEventListener("click", saveFolder);
+
+      els.closeDetailBtn.addEventListener("click", closeDetail);
+      els.closeBackupBtn.addEventListener("click", () => closeOverlay(els.backupOverlay));
+
+      els.exportBtn.addEventListener("click", exportJson);
+      els.importBtn.addEventListener("click", () => els.importFileInput.click());
+      els.importFileInput.addEventListener("change", importJson);
+      els.seedBtn.addEventListener("click", loadDemo);
+      els.clearAllBtn.addEventListener("click", clearAllData);
+
+      [els.editorOverlay, els.folderOverlay, els.detailOverlay, els.backupOverlay].forEach(overlay => {
+        overlay.addEventListener("click", (e) => {
+          if(e.target === overlay){
+            closeOverlay(overlay);
           }
-          const parsed = JSON.parse(raw);
-          if(!parsed || !Array.isArray(parsed.folders) || !Array.isArray(parsed.prompts)){
-            return seedData();
-          }
-          parsed.stats = parsed.stats || { totalCopies: 0 };
-          return parsed;
-        }catch(e){
-          return seedData();
-        }
-      }
-
-      function saveState(){
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      }
-
-      function showToast(text){
-        els.toast.textContent = text;
-        els.toast.classList.add("show");
-        clearTimeout(showToast._t);
-        showToast._t = setTimeout(() => {
-          els.toast.classList.remove("show");
-        }, 1600);
-      }
-
-      function openModal(id){
-        document.getElementById(id).classList.add("show");
-      }
-
-      function closeModal(id){
-        document.getElementById(id).classList.remove("show");
-      }
-
-      function closeAllModals(){
-        document.querySelectorAll(".modal.show").forEach(m => m.classList.remove("show"));
-      }
-
-      function escapeHtml(str=""){
-        return str
-          .replace(/&/g,"&amp;")
-          .replace(/</g,"&lt;")
-          .replace(/>/g,"&gt;")
-          .replace(/"/g,"&quot;")
-          .replace(/'/g,"&#039;");
-      }
-
-      function formatRelative(ts){
-        if(!ts) return "mai";
-        const diff = Date.now() - ts;
-        const m = Math.floor(diff / 60000);
-        if(m < 1) return "ora";
-        if(m < 60) return `${m} min fa`;
-        const h = Math.floor(m / 60);
-        if(h < 24) return `${h} h fa`;
-        const d = Math.floor(h / 24);
-        if(d < 30) return `${d} g fa`;
-        const mo = Math.floor(d / 30);
-        if(mo < 12) return `${mo} mesi fa`;
-        const y = Math.floor(mo / 12);
-        return `${y} anni fa`;
-      }
-
-      function getFolderName(folderId){
-        const f = state.folders.find(x => x.id === folderId);
-        return f ? f.name : "Senza cartella";
-      }
-
-      function parseTags(str){
-        return [...new Set(
-          str.split(",")
-            .map(s => s.trim())
-            .filter(Boolean)
-        )];
-      }
-
-      function populateFolderSelect(){
-        els.promptFolder.innerHTML = state.folders.map(f =>
-          `<option value="${f.id}">${escapeHtml(f.name)}</option>`
-        ).join("");
-      }
-
-      function renderStats(){
-        const totalPrompts = state.prompts.length;
-        const totalFolders = state.folders.length;
-        const favorites = state.prompts.filter(p => p.favorite).length;
-        const totalCopies = state.stats.totalCopies || 0;
-
-        els.statsGrid.innerHTML = `
-          <div class="stat"><div class="k">${totalPrompts}</div><div class="l">Prompt totali</div></div>
-          <div class="stat"><div class="k">${totalFolders}</div><div class="l">Cartelle</div></div>
-          <div class="stat"><div class="k">${favorites}</div><div class="l">Preferiti</div></div>
-          <div class="stat"><div class="k">${totalCopies}</div><div class="l">Copie effettuate</div></div>
-        `;
-
-        const topPrompt = [...state.prompts].sort((a,b)=>(b.copies||0)-(a.copies||0))[0];
-        els.settingsStats.innerHTML = `
-          <div class="stat"><div class="k">${totalPrompts}</div><div class="l">Prompt salvati</div></div>
-          <div class="stat"><div class="k">${totalFolders}</div><div class="l">Cartelle</div></div>
-          <div class="stat"><div class="k">${totalCopies}</div><div class="l">Copie totali</div></div>
-          <div class="stat"><div class="k">${topPrompt ? escapeHtml(topPrompt.title.slice(0,12) + (topPrompt.title.length>12 ? "…" : "")) : "-"}</div><div class="l">Più copiato</div></div>
-        `;
-      }
-
-      function renderFolders(){
-        const counts = {};
-        state.prompts.forEach(p => {
-          counts[p.folderId] = (counts[p.folderId] || 0) + 1;
         });
+      });
+    }
 
-        const allCount = state.prompts.length;
+    function uid(){
+      return "id_" + Math.random().toString(36).slice(2,10) + "_" + Date.now().toString(36);
+    }
 
-        const allChip = `
-          <div class="folder-chip ${currentFolderId === DEFAULT_FOLDER_ID ? "active" : ""}" data-folder-id="${DEFAULT_FOLDER_ID}">
-            <div class="name">Tutte</div>
-            <div class="meta">${allCount} prompt</div>
-          </div>
-        `;
+    function loadData(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return clone(DEFAULT_DATA);
+        const parsed = JSON.parse(raw);
+        return normalizeData(parsed);
+      }catch(error){
+        return clone(DEFAULT_DATA);
+      }
+    }
 
-        const chips = state.folders.map(f => `
-          <div class="folder-chip ${currentFolderId === f.id ? "active" : ""}" data-folder-id="${f.id}">
-            <div class="name">${escapeHtml(f.name)}</div>
-            <div class="meta">${counts[f.id] || 0} prompt</div>
-          </div>
-        `).join("");
+    function normalizeData(raw){
+      const folders = Array.isArray(raw.folders) ? raw.folders.map(folder => ({
+        id: String(folder.id || uid()),
+        name: String(folder.name || "").trim(),
+        system: Boolean(folder.system)
+      })).filter(folder => folder.name) : [];
 
-        els.folderRow.innerHTML = allChip + chips;
-
-        els.folderRow.querySelectorAll("[data-folder-id]").forEach(el => {
-          el.onclick = () => {
-            currentFolderId = el.getAttribute("data-folder-id");
-            renderAll();
-          };
-        });
+      const hasAll = folders.some(folder => folder.id === "all");
+      if(!hasAll){
+        folders.unshift({ id:"all", name:"Tutte", system:true });
       }
 
-      function getFilteredPrompts(){
-        const q = els.searchInput.value.trim().toLowerCase();
-        const filter = els.filterSelect.value;
-        const sort = els.sortSelect.value;
+      const prompts = Array.isArray(raw.prompts) ? raw.prompts.map(prompt => ({
+        id: String(prompt.id || uid()),
+        title: String(prompt.title || "").trim(),
+        folderId: String(prompt.folderId || "all"),
+        tags: Array.isArray(prompt.tags)
+          ? prompt.tags.map(tag => String(tag).trim()).filter(Boolean)
+          : String(prompt.tags || "").split(",").map(tag => tag.trim()).filter(Boolean),
+        text: String(prompt.text || "").trim(),
+        favorite: Boolean(prompt.favorite),
+        featured: Boolean(prompt.featured),
+        copyCount: Number(prompt.copyCount || 0),
+        createdAt: Number(prompt.createdAt || Date.now()),
+        updatedAt: Number(prompt.updatedAt || Date.now())
+      })).filter(prompt => prompt.title && prompt.text) : [];
 
-        let items = [...state.prompts];
+      return {
+        folders,
+        prompts,
+        totalCopies: Number(raw.totalCopies || prompts.reduce((acc,p) => acc + (p.copyCount || 0), 0))
+      };
+    }
 
-        if(currentFolderId !== DEFAULT_FOLDER_ID){
-          items = items.filter(p => p.folderId === currentFolderId);
-        }
+    function clone(obj){
+      return JSON.parse(JSON.stringify(obj));
+    }
 
-        if(filter === "favorites"){
-          items = items.filter(p => p.favorite);
-        }else if(filter === "pinned"){
-          items = items.filter(p => p.pinned);
-        }else if(filter === "recent"){
-          const cutoff = Date.now() - 1000 * 60 * 60 * 24 * 10;
-          items = items.filter(p => (p.lastCopiedAt || 0) >= cutoff);
-        }
+    function saveData(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+    }
 
-        if(q){
-          items = items.filter(p => {
-            const hay = [
-              p.title,
-              p.body,
-              p.note || "",
-              (p.tags || []).join(" "),
-              getFolderName(p.folderId)
-            ].join(" ").toLowerCase();
-            return hay.includes(q);
-          });
-        }
+    function render(){
+      renderFolderSelect();
+      renderFolders();
+      renderStats();
+      renderPromptList();
+    }
 
-        items.sort((a,b) => {
-          if(a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+    function renderFolderSelect(){
+      const folders = state.data.folders.filter(folder => folder.id !== "all");
+      els.promptFolderSelect.innerHTML = folders.map(folder =>
+        `<option value="${escapeAttr(folder.id)}">${escapeHtml(folder.name)}</option>`
+      ).join("");
+    }
 
-          if(sort === "copies_desc") return (b.copies||0) - (a.copies||0) || (b.updatedAt||0) - (a.updatedAt||0);
-          if(sort === "title_asc") return a.title.localeCompare(b.title, "it");
-          if(sort === "created_desc") return (b.createdAt||0) - (a.createdAt||0);
-          return (b.updatedAt||0) - (a.updatedAt||0);
-        });
+    function renderFolders(){
+      const folders = state.data.folders;
+      const html = folders.map(folder => {
+        const count = folder.id === "all"
+          ? state.data.prompts.length
+          : state.data.prompts.filter(prompt => prompt.folderId === folder.id).length;
 
-        return items;
-      }
-
-      function renderQuickSections(){
-        const topCopied = [...state.prompts]
-          .sort((a,b) => (b.copies||0) - (a.copies||0))
-          .slice(0,3);
-
-        const recent = [...state.prompts]
-          .filter(p => p.lastCopiedAt)
-          .sort((a,b) => (b.lastCopiedAt||0) - (a.lastCopiedAt||0))
-          .slice(0,3);
-
-        const favorites = state.prompts.filter(p => p.favorite).slice(0,3);
-
-        const card = (title, arr, icon) => `
-          <div class="card" style="margin-bottom:12px">
-            <div class="section-head" style="margin-bottom:8px">
-              <h2>${icon} ${title}</h2>
-              <span class="tiny muted">${arr.length}</span>
-            </div>
-            ${arr.length ? arr.map(p => `
-              <div style="padding:10px 0;border-top:1px solid rgba(255,255,255,.05)">
-                <div style="font-weight:700">${escapeHtml(p.title)}</div>
-                <div class="tiny muted">${escapeHtml(getFolderName(p.folderId))} · ${p.copies||0} copie</div>
-              </div>
-            `).join("") : `<div class="tiny muted">Nessun elemento</div>`}
-          </div>
-        `;
-
-        els.quickSections.innerHTML = `
-          <div class="section-head">
-            <h2>Panoramica rapida</h2>
-            <span class="tiny muted">uso reale</span>
-          </div>
-          ${card("Più usati", topCopied, "📈")}
-          ${card("Recenti", recent, "🕘")}
-          ${card("Preferiti", favorites, "⭐")}
-        `;
-      }
-
-      function promptCard(p){
-        const tagsHtml = (p.tags || []).length
-          ? `<div class="tags">${p.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join("")}</div>`
-          : "";
-
-        const noteHtml = p.note
-          ? `<div class="card-note">${escapeHtml(p.note)}</div>`
-          : "";
+        const active = state.activeFolderId === folder.id ? "active" : "";
 
         return `
-          <div class="card">
-            <div class="card-top">
-              <div style="min-width:0;flex:1">
-                <h3 class="card-title">${escapeHtml(p.title)}</h3>
-                <div class="card-folder">📁 ${escapeHtml(getFolderName(p.folderId))} · aggiornato ${escapeHtml(formatRelative(p.updatedAt))}</div>
-              </div>
-              <div class="flags">
-                ${p.pinned ? `<span class="flag pin">📌 Pin</span>` : ""}
-                ${p.favorite ? `<span class="flag fav">⭐ Preferito</span>` : ""}
-                <span class="flag copies">📋 ${p.copies || 0}</span>
-              </div>
-            </div>
-            <div class="card-body">${escapeHtml(p.body)}</div>
-            ${noteHtml}
-            ${tagsHtml}
-            <div class="card-actions">
-              <button class="btn-primary" data-copy="${p.id}">Copia</button>
-              <button class="btn-ghost" data-edit="${p.id}">Modifica</button>
-              <button class="btn-ghost" data-dup="${p.id}">Duplica</button>
-              <button class="btn-ghost" data-fav="${p.id}">${p.favorite ? "Unfav" : "Fav"}</button>
-              <button class="btn-ghost" data-pin="${p.id}">${p.pinned ? "Unpin" : "Pin"}</button>
-              <button class="btn-ghost" data-move="${p.id}">Cartella</button>
-              <button class="btn-danger" data-del="${p.id}">Elimina</button>
-              <button class="btn-ok" data-view="${p.id}">Apri</button>
-            </div>
+          <button class="folder-card ${active}" data-folder-id="${escapeAttr(folder.id)}">
+            <div class="folder-title">${escapeHtml(folder.name)}</div>
+            <div class="folder-meta">${count} prompt</div>
+          </button>
+        `;
+      }).join("") + `
+        <button class="folder-card folder-add" id="addFolderCard">
+          <span>＋</span>
+          <span>Nuova</span>
+        </button>
+      `;
+
+      els.foldersRow.innerHTML = html;
+
+      els.foldersRow.querySelectorAll("[data-folder-id]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.activeFolderId = btn.dataset.folderId;
+          render();
+        });
+      });
+
+      document.getElementById("addFolderCard").addEventListener("click", openFolderEditor);
+
+      const activeFolder = getActiveFolder();
+      els.folderInfoText.textContent = activeFolder.id === "all"
+        ? "Tutte le cartelle"
+        : `Dentro: ${activeFolder.name}`;
+    }
+
+    function renderStats(){
+      els.statPrompts.textContent = state.data.prompts.length;
+      els.statFolders.textContent = state.data.folders.filter(folder => folder.id !== "all").length;
+      els.statFavorites.textContent = state.data.prompts.filter(prompt => prompt.favorite).length;
+      els.statCopies.textContent = state.data.totalCopies || 0;
+    }
+
+    function getActiveFolder(){
+      return state.data.folders.find(folder => folder.id === state.activeFolderId) || state.data.folders[0];
+    }
+
+    function getFilteredPrompts(){
+      const q = els.searchInput.value.trim().toLowerCase();
+      let prompts = [...state.data.prompts];
+
+      if(state.activeFolderId !== "all"){
+        prompts = prompts.filter(prompt => prompt.folderId === state.activeFolderId);
+      }
+
+      if(state.view === "favorites"){
+        prompts = prompts.filter(prompt => prompt.favorite);
+      }else if(state.view === "featured"){
+        prompts = prompts.filter(prompt => prompt.featured);
+      }else if(state.view === "recent"){
+        prompts = prompts.filter(prompt => isRecent(prompt));
+      }
+
+      if(q){
+        prompts = prompts.filter(prompt => {
+          const haystack = [
+            prompt.title,
+            prompt.text,
+            ...(prompt.tags || []),
+            getFolderName(prompt.folderId)
+          ].join(" ").toLowerCase();
+          return haystack.includes(q);
+        });
+      }
+
+      prompts.sort((a,b) => {
+        if(state.sort === "title"){
+          return a.title.localeCompare(b.title, "it");
+        }
+        if(state.sort === "copies"){
+          return (b.copyCount || 0) - (a.copyCount || 0) || b.updatedAt - a.updatedAt;
+        }
+
+        const aBoost = (a.featured ? 1000 : 0) + (a.favorite ? 100 : 0);
+        const bBoost = (b.featured ? 1000 : 0) + (b.favorite ? 100 : 0);
+        return (bBoost - aBoost) || (b.updatedAt - a.updatedAt);
+      });
+
+      return prompts;
+    }
+
+    function renderPromptList(){
+      const prompts = getFilteredPrompts();
+      const activeFolder = getActiveFolder();
+
+      els.listTitle.textContent = activeFolder.id === "all" ? "Prompt" : activeFolder.name;
+      els.listCount.textContent = `${prompts.length} prompt`;
+
+      if(!prompts.length){
+        els.promptList.innerHTML = `
+          <div class="empty">
+            Nessun prompt trovato.<br>
+            Prova a cambiare vista, cartella o ricerca.
           </div>
         `;
+        return;
       }
 
-      function renderPrompts(){
-        const items = getFilteredPrompts();
-        els.resultLabel.textContent = `${items.length} prompt`;
+      els.promptList.innerHTML = prompts.map(prompt => createPromptCard(prompt)).join("");
 
-        if(!items.length){
-          els.promptList.innerHTML = `
-            <div class="empty">
-              <b>Nessun prompt trovato</b>
-              Prova a cambiare filtro, cercare meno testo oppure crea un nuovo prompt.
+      els.promptList.querySelectorAll("[data-action='copy']").forEach(btn => {
+        btn.addEventListener("click", () => copyPrompt(btn.dataset.id));
+      });
+      els.promptList.querySelectorAll("[data-action='edit']").forEach(btn => {
+        btn.addEventListener("click", () => openEditPromptEditor(btn.dataset.id));
+      });
+      els.promptList.querySelectorAll("[data-action='favorite']").forEach(btn => {
+        btn.addEventListener("click", () => toggleFavorite(btn.dataset.id));
+      });
+      els.promptList.querySelectorAll("[data-action='featured']").forEach(btn => {
+        btn.addEventListener("click", () => toggleFeatured(btn.dataset.id));
+      });
+      els.promptList.querySelectorAll("[data-action='detail']").forEach(btn => {
+        btn.addEventListener("click", () => openDetail(btn.dataset.id));
+      });
+    }
+
+    function createPromptCard(prompt){
+      const preview = limitText(prompt.text, 180);
+      const folderName = getFolderName(prompt.folderId);
+
+      return `
+        <article class="card">
+          <div class="card-top">
+            <div>
+              <h3 class="card-title">${escapeHtml(prompt.title)}</h3>
+              <div class="card-meta">
+                <span class="badge">${escapeHtml(folderName)}</span>
+                ${prompt.favorite ? `<span class="badge favorite">★ Preferito</span>` : ``}
+                ${prompt.featured ? `<span class="badge featured">In evidenza</span>` : ``}
+              </div>
             </div>
-          `;
-          return;
-        }
+            <div class="copy-badge">${prompt.copyCount || 0} copie</div>
+          </div>
 
-        els.promptList.innerHTML = items.map(promptCard).join("");
+          <div class="prompt-preview">${escapeHtml(preview)}</div>
 
-        els.promptList.querySelectorAll("[data-copy]").forEach(btn => {
-          btn.onclick = () => copyPrompt(btn.getAttribute("data-copy"));
-        });
+          ${(prompt.tags || []).length ? `
+            <div class="tags">
+              ${prompt.tags.map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`).join("")}
+            </div>
+          ` : ``}
 
-        els.promptList.querySelectorAll("[data-edit]").forEach(btn => {
-          btn.onclick = () => openPromptEditor(btn.getAttribute("data-edit"));
-        });
+          <div class="card-actions">
+            <button class="btn btn-primary btn-small" data-action="copy" data-id="${escapeAttr(prompt.id)}">Copia</button>
+            <button class="btn btn-secondary btn-small" data-action="edit" data-id="${escapeAttr(prompt.id)}">Modifica</button>
+            <button class="btn btn-soft btn-small" data-action="favorite" data-id="${escapeAttr(prompt.id)}">
+              ${prompt.favorite ? "Preferito ✓" : "Preferito"}
+            </button>
+            <button class="btn btn-soft btn-small" data-action="featured" data-id="${escapeAttr(prompt.id)}">
+              ${prompt.featured ? "In evidenza ✓" : "Metti in evidenza"}
+            </button>
+          </div>
 
-        els.promptList.querySelectorAll("[data-dup]").forEach(btn => {
-          btn.onclick = () => duplicatePrompt(btn.getAttribute("data-dup"));
-        });
+          <div class="mini-actions">
+            <button class="btn btn-secondary btn-small" data-action="detail" data-id="${escapeAttr(prompt.id)}">Apri</button>
+            <button class="btn btn-danger btn-small" data-action="edit" data-id="${escapeAttr(prompt.id)}">Modifica completa</button>
+          </div>
+        </article>
+      `;
+    }
 
-        els.promptList.querySelectorAll("[data-fav]").forEach(btn => {
-          btn.onclick = () => toggleFavorite(btn.getAttribute("data-fav"));
-        });
+    function syncBottomNav(){
+      els.navBtns.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.nav === state.view);
+      });
+    }
 
-        els.promptList.querySelectorAll("[data-pin]").forEach(btn => {
-          btn.onclick = () => togglePinned(btn.getAttribute("data-pin"));
-        });
+    function openNewPromptEditor(){
+      state.editingPromptId = null;
+      els.editorTitle.textContent = "Nuovo prompt";
+      els.promptTitleInput.value = "";
+      els.promptTextInput.value = "";
+      els.promptTagsInput.value = "";
+      els.promptFavoriteInput.checked = false;
+      els.promptFeaturedInput.checked = false;
+      els.deletePromptWrap.style.display = "none";
 
-        els.promptList.querySelectorAll("[data-del]").forEach(btn => {
-          btn.onclick = () => deletePrompt(btn.getAttribute("data-del"));
-        });
+      const currentFolder = state.activeFolderId !== "all" ? state.activeFolderId : getFirstRealFolderId();
+      els.promptFolderSelect.value = currentFolder;
 
-        els.promptList.querySelectorAll("[data-view]").forEach(btn => {
-          btn.onclick = () => viewFullPrompt(btn.getAttribute("data-view"));
-        });
+      openOverlay(els.editorOverlay);
+      setTimeout(() => els.promptTitleInput.focus(), 30);
+    }
 
-        els.promptList.querySelectorAll("[data-move]").forEach(btn => {
-          btn.onclick = () => movePrompt(btn.getAttribute("data-move"));
-        });
+    function openEditPromptEditor(id){
+      const prompt = state.data.prompts.find(p => p.id === id);
+      if(!prompt) return;
+
+      state.editingPromptId = id;
+      els.editorTitle.textContent = "Modifica prompt";
+      els.promptTitleInput.value = prompt.title;
+      els.promptTextInput.value = prompt.text;
+      els.promptTagsInput.value = (prompt.tags || []).join(", ");
+      els.promptFavoriteInput.checked = prompt.favorite;
+      els.promptFeaturedInput.checked = prompt.featured;
+      els.promptFolderSelect.value = prompt.folderId;
+      els.deletePromptWrap.style.display = "block";
+
+      openOverlay(els.editorOverlay);
+    }
+
+    function savePromptFromEditor(){
+      const title = els.promptTitleInput.value.trim();
+      const text = els.promptTextInput.value.trim();
+      const folderId = els.promptFolderSelect.value;
+      const tags = els.promptTagsInput.value
+        .split(",")
+        .map(tag => tag.trim())
+        .filter(Boolean);
+
+      if(!title){
+        showToast("Inserisci un titolo.");
+        els.promptTitleInput.focus();
+        return;
       }
 
-      async function copyPrompt(id){
-        const p = state.prompts.find(x => x.id === id);
-        if(!p) return;
-        try{
-          await navigator.clipboard.writeText(p.body);
-          p.copies = (p.copies || 0) + 1;
-          p.lastCopiedAt = now();
-          p.updatedAt = now();
-          state.stats.totalCopies = (state.stats.totalCopies || 0) + 1;
-          saveState();
-          renderAll();
-          showToast("Prompt copiato");
-        }catch(e){
-          showToast("Copia non riuscita");
-        }
+      if(!text){
+        showToast("Inserisci il testo del prompt.");
+        els.promptTextInput.focus();
+        return;
       }
 
-      function openPromptEditor(id=null){
-        populateFolderSelect();
+      const now = Date.now();
 
-        if(id){
-          const p = state.prompts.find(x => x.id === id);
-          if(!p) return;
-          editingPromptId = id;
-          els.promptModalTitle.textContent = "Modifica prompt";
-          els.promptTitle.value = p.title || "";
-          els.promptFolder.value = p.folderId || (state.folders[0]?.id || "");
-          els.promptTags.value = (p.tags || []).join(", ");
-          els.promptBody.value = p.body || "";
-          els.promptNote.value = p.note || "";
-          els.promptFavorite.checked = !!p.favorite;
-          els.promptPinned.checked = !!p.pinned;
-        }else{
-          editingPromptId = null;
-          els.promptModalTitle.textContent = "Nuovo prompt";
-          els.promptTitle.value = "";
-          els.promptFolder.value = state.folders[0]?.id || "";
-          els.promptTags.value = "";
-          els.promptBody.value = "";
-          els.promptNote.value = "";
-          els.promptFavorite.checked = false;
-          els.promptPinned.checked = false;
-        }
-
-        openModal("promptModal");
-        setTimeout(() => els.promptTitle.focus(), 60);
-      }
-
-      function savePrompt(){
-        const title = els.promptTitle.value.trim();
-        const folderId = els.promptFolder.value;
-        const body = els.promptBody.value.trim();
-        const note = els.promptNote.value.trim();
-        const tags = parseTags(els.promptTags.value);
-
-        if(!title){
-          showToast("Inserisci un titolo");
-          return;
-        }
-        if(!body){
-          showToast("Inserisci il prompt");
-          return;
-        }
-        if(!folderId){
-          showToast("Crea prima una cartella");
-          return;
-        }
-
-        if(editingPromptId){
-          const p = state.prompts.find(x => x.id === editingPromptId);
-          if(!p) return;
-          p.title = title;
-          p.folderId = folderId;
-          p.body = body;
-          p.note = note;
-          p.tags = tags;
-          p.favorite = els.promptFavorite.checked;
-          p.pinned = els.promptPinned.checked;
-          p.updatedAt = now();
-          showToast("Prompt aggiornato");
-        }else{
-          state.prompts.unshift({
-            id: uid("prompt"),
+      if(state.editingPromptId){
+        state.data.prompts = state.data.prompts.map(prompt => {
+          if(prompt.id !== state.editingPromptId) return prompt;
+          return {
+            ...prompt,
             title,
+            text,
             folderId,
-            body,
-            note,
             tags,
-            favorite: els.promptFavorite.checked,
-            pinned: els.promptPinned.checked,
-            copies: 0,
-            lastCopiedAt: 0,
-            createdAt: now(),
-            updatedAt: now()
-          });
-          showToast("Prompt salvato");
-        }
-
-        saveState();
-        closeModal("promptModal");
-        renderAll();
-      }
-
-      function duplicatePrompt(id){
-        const p = state.prompts.find(x => x.id === id);
-        if(!p) return;
-        state.prompts.unshift({
-          ...JSON.parse(JSON.stringify(p)),
-          id: uid("prompt"),
-          title: p.title + " (copia)",
-          copies: 0,
-          lastCopiedAt: 0,
-          createdAt: now(),
-          updatedAt: now()
+            favorite: els.promptFavoriteInput.checked,
+            featured: els.promptFeaturedInput.checked,
+            updatedAt: now
+          };
         });
-        saveState();
-        renderAll();
-        showToast("Prompt duplicato");
-      }
-
-      function toggleFavorite(id){
-        const p = state.prompts.find(x => x.id === id);
-        if(!p) return;
-        p.favorite = !p.favorite;
-        p.updatedAt = now();
-        saveState();
-        renderAll();
-      }
-
-      function togglePinned(id){
-        const p = state.prompts.find(x => x.id === id);
-        if(!p) return;
-        p.pinned = !p.pinned;
-        p.updatedAt = now();
-        saveState();
-        renderAll();
-      }
-
-      function deletePrompt(id){
-        const p = state.prompts.find(x => x.id === id);
-        if(!p) return;
-        if(!confirm(`Eliminare il prompt "${p.title}"?`)) return;
-        state.prompts = state.prompts.filter(x => x.id !== id);
-        saveState();
-        renderAll();
-        showToast("Prompt eliminato");
-      }
-
-      function movePrompt(id){
-        const p = state.prompts.find(x => x.id === id);
-        if(!p) return;
-
-        if(!state.folders.length){
-          showToast("Crea prima una cartella");
-          return;
-        }
-
-        const names = state.folders.map((f, i) => `${i+1}. ${f.name}`).join("\\n");
-        const val = prompt(`Scegli il numero della nuova cartella:\\n\\n${names}`, "1");
-        if(!val) return;
-        const idx = parseInt(val, 10) - 1;
-        if(Number.isNaN(idx) || idx < 0 || idx >= state.folders.length){
-          showToast("Scelta non valida");
-          return;
-        }
-        p.folderId = state.folders[idx].id;
-        p.updatedAt = now();
-        saveState();
-        renderAll();
-        showToast("Cartella aggiornata");
-      }
-
-      function viewFullPrompt(id){
-        const p = state.prompts.find(x => x.id === id);
-        if(!p) return;
-
-        const full = [
-          p.title,
-          "",
-          "Cartella: " + getFolderName(p.folderId),
-          p.tags?.length ? "Tag: " + p.tags.join(", ") : "",
-          "",
-          p.body,
-          p.note ? "\\n\\nNota:\\n" + p.note : ""
-        ].filter(Boolean).join("\\n");
-
-        alert(full);
-      }
-
-      function saveFolder(){
-        const name = els.folderName.value.trim();
-        if(!name){
-          showToast("Inserisci un nome cartella");
-          return;
-        }
-        const exists = state.folders.some(f => f.name.toLowerCase() === name.toLowerCase());
-        if(exists){
-          showToast("Cartella già esistente");
-          return;
-        }
-        state.folders.push({
-          id: uid("folder"),
-          name,
-          createdAt: now()
+        showToast("Prompt aggiornato.");
+      }else{
+        state.data.prompts.unshift({
+          id: uid(),
+          title,
+          text,
+          folderId,
+          tags,
+          favorite: els.promptFavoriteInput.checked,
+          featured: els.promptFeaturedInput.checked,
+          copyCount: 0,
+          createdAt: now,
+          updatedAt: now
         });
-        els.folderName.value = "";
-        saveState();
-        closeModal("folderModal");
-        renderAll();
-        showToast("Cartella creata");
+        showToast("Prompt salvato.");
       }
 
-      function exportBackup(){
-        const payload = {
-          app: "PromptDock",
-          version: 1,
-          exportedAt: new Date().toISOString(),
-          data: state
-        };
-        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      saveData();
+      closeEditor();
+      render();
+    }
+
+    function deleteEditingPrompt(){
+      if(!state.editingPromptId) return;
+      const ok = confirm("Vuoi eliminare questo prompt?");
+      if(!ok) return;
+
+      state.data.prompts = state.data.prompts.filter(prompt => prompt.id !== state.editingPromptId);
+      saveData();
+      closeEditor();
+      render();
+      showToast("Prompt eliminato.");
+    }
+
+    function copyPrompt(id){
+      const prompt = state.data.prompts.find(p => p.id === id);
+      if(!prompt) return;
+
+      navigator.clipboard.writeText(prompt.text).then(() => {
+        prompt.copyCount = (prompt.copyCount || 0) + 1;
+        prompt.updatedAt = Date.now();
+        state.data.totalCopies = (state.data.totalCopies || 0) + 1;
+        saveData();
+        render();
+        showToast("Prompt copiato.");
+      }).catch(() => {
+        showToast("Copia non riuscita.");
+      });
+    }
+
+    function toggleFavorite(id){
+      state.data.prompts = state.data.prompts.map(prompt =>
+        prompt.id === id ? { ...prompt, favorite: !prompt.favorite, updatedAt: Date.now() } : prompt
+      );
+      saveData();
+      render();
+    }
+
+    function toggleFeatured(id){
+      state.data.prompts = state.data.prompts.map(prompt =>
+        prompt.id === id ? { ...prompt, featured: !prompt.featured, updatedAt: Date.now() } : prompt
+      );
+      saveData();
+      render();
+    }
+
+    function openFolderEditor(){
+      els.folderNameInput.value = "";
+      openOverlay(els.folderOverlay);
+      setTimeout(() => els.folderNameInput.focus(), 30);
+    }
+
+    function saveFolder(){
+      const name = els.folderNameInput.value.trim();
+      if(!name){
+        showToast("Inserisci un nome cartella.");
+        return;
+      }
+
+      const exists = state.data.folders.some(folder => folder.name.toLowerCase() === name.toLowerCase());
+      if(exists){
+        showToast("Questa cartella esiste già.");
+        return;
+      }
+
+      const id = slugify(name);
+      state.data.folders.push({ id, name });
+      saveData();
+      closeFolderEditor();
+      state.activeFolderId = id;
+      render();
+      showToast("Cartella creata.");
+    }
+
+    function openDetail(id){
+      const prompt = state.data.prompts.find(p => p.id === id);
+      if(!prompt) return;
+
+      els.detailTitle.textContent = prompt.title;
+      els.detailContent.innerHTML = `
+        <div class="sheet-block">
+          <div class="card-meta" style="margin-top:0;">
+            <span class="badge">${escapeHtml(getFolderName(prompt.folderId))}</span>
+            ${prompt.favorite ? `<span class="badge favorite">★ Preferito</span>` : ``}
+            ${prompt.featured ? `<span class="badge featured">In evidenza</span>` : ``}
+          </div>
+        </div>
+
+        ${(prompt.tags || []).length ? `
+          <div class="sheet-block">
+            <div class="tags">
+              ${prompt.tags.map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`).join("")}
+            </div>
+          </div>
+        ` : ``}
+
+        <div class="sheet-block">
+          <div class="prompt-preview" style="margin-top:0;">${escapeHtml(prompt.text)}</div>
+        </div>
+
+        <div class="helper">
+          Creato: ${formatDate(prompt.createdAt)}<br>
+          Ultima modifica: ${formatDate(prompt.updatedAt)}<br>
+          Copie: ${prompt.copyCount || 0}
+        </div>
+
+        <div class="sheet-actions">
+          <button class="btn btn-primary" id="detailCopyBtn">Copia</button>
+          <button class="btn btn-secondary" id="detailEditBtn">Modifica</button>
+        </div>
+      `;
+
+      openOverlay(els.detailOverlay);
+
+      document.getElementById("detailCopyBtn").addEventListener("click", () => {
+        closeDetail();
+        copyPrompt(id);
+      });
+
+      document.getElementById("detailEditBtn").addEventListener("click", () => {
+        closeDetail();
+        openEditPromptEditor(id);
+      });
+    }
+
+    function exportJson(){
+      try{
+        const blob = new Blob([JSON.stringify(state.data, null, 2)], { type:"application/json" });
+        const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
-        const date = new Date();
-        const name = `promptdock-backup-${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}.json`;
-        a.href = URL.createObjectURL(blob);
-        a.download = name;
+        a.href = url;
+        a.download = "promptdock-backup.json";
+        document.body.appendChild(a);
         a.click();
-        URL.revokeObjectURL(a.href);
-        showToast("Backup esportato");
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast("Backup esportato.");
+      }catch(error){
+        showToast("Errore esportazione.");
       }
+    }
 
-      function importBackup(file){
-        const reader = new FileReader();
-        reader.onload = () => {
-          try{
-            const parsed = JSON.parse(reader.result);
-            const data = parsed.data || parsed;
-            if(!data || !Array.isArray(data.folders) || !Array.isArray(data.prompts)){
-              throw new Error("Formato non valido");
-            }
-            data.stats = data.stats || { totalCopies: 0 };
-            state = data;
-            saveState();
-            currentFolderId = DEFAULT_FOLDER_ID;
-            renderAll();
-            showToast("Backup importato");
-          }catch(e){
-            alert("File JSON non valido per PromptDock.");
-          }
-        };
-        reader.readAsText(file);
-      }
+    function importJson(event){
+      const file = event.target.files?.[0];
+      if(!file) return;
 
-      function resetAll(){
-        if(!confirm("Vuoi davvero cancellare tutti i dati dell'app?")) return;
-        if(!confirm("Conferma finale: tutti i prompt verranno eliminati.")) return;
-        state = { folders: [], prompts: [], stats: { totalCopies: 0 } };
-        saveState();
-        renderAll();
-        showToast("Dati azzerati");
-      }
-
-      function restoreDemo(){
-        if(!confirm("Ripristinare i prompt demo iniziali?")) return;
-        state = seedData();
-        saveState();
-        currentFolderId = DEFAULT_FOLDER_ID;
-        renderAll();
-        showToast("Prompt demo ripristinati");
-      }
-
-      function bindEvents(){
-        document.getElementById("fabAdd").onclick = () => openPromptEditor();
-        document.getElementById("navAdd").onclick = () => openPromptEditor();
-        document.getElementById("addFolderBtn").onclick = () => openModal("folderModal");
-        document.getElementById("saveFolderBtn").onclick = saveFolder;
-        document.getElementById("savePromptBtn").onclick = savePrompt;
-        document.getElementById("openSettingsBtn").onclick = () => openModal("settingsModal");
-
-        document.getElementById("navAll").onclick = () => {
-          els.filterSelect.value = "all";
-          currentFolderId = DEFAULT_FOLDER_ID;
-          renderAll();
-        };
-        document.getElementById("navFav").onclick = () => {
-          els.filterSelect.value = "favorites";
-          currentFolderId = DEFAULT_FOLDER_ID;
-          renderAll();
-        };
-        document.getElementById("navRecent").onclick = () => {
-          els.filterSelect.value = "recent";
-          currentFolderId = DEFAULT_FOLDER_ID;
-          renderAll();
-        };
-
-        document.getElementById("exportBtn").onclick = exportBackup;
-        document.getElementById("importBtn").onclick = () => els.importFile.click();
-        document.getElementById("resetBtn").onclick = resetAll;
-        document.getElementById("seedBtn").onclick = restoreDemo;
-
-        els.importFile.addEventListener("change", e => {
-          const file = e.target.files?.[0];
-          if(file) importBackup(file);
-          e.target.value = "";
-        });
-
-        els.searchInput.addEventListener("input", renderPrompts);
-        els.filterSelect.addEventListener("change", renderPrompts);
-        els.sortSelect.addEventListener("change", renderPrompts);
-
-        document.querySelectorAll("[data-close]").forEach(btn => {
-          btn.onclick = () => closeModal(btn.getAttribute("data-close"));
-        });
-
-        document.querySelectorAll(".modal").forEach(m => {
-          m.addEventListener("click", e => {
-            if(e.target === m) m.classList.remove("show");
-          });
-        });
-
-        document.addEventListener("keydown", e => {
-          if(e.key === "Escape") closeAllModals();
-        });
-      }
-
-      function ensureStarterFolderIfEmpty(){
-        if(!state.folders.length){
-          const f = { id: uid("folder"), name: "Generale", createdAt: now() };
-          state.folders.push(f);
-          saveState();
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const parsed = JSON.parse(reader.result);
+          state.data = normalizeData(parsed);
+          state.activeFolderId = "all";
+          state.view = "all";
+          els.viewSelect.value = "all";
+          saveData();
+          closeOverlay(els.backupOverlay);
+          render();
+          syncBottomNav();
+          showToast("Backup importato.");
+        }catch(error){
+          showToast("File JSON non valido.");
+        }finally{
+          event.target.value = "";
         }
+      };
+      reader.readAsText(file);
+    }
+
+    function loadDemo(){
+      const ok = confirm("Vuoi caricare la demo? I dati attuali verranno sostituiti.");
+      if(!ok) return;
+      state.data = clone(DEFAULT_DATA);
+      state.activeFolderId = "all";
+      state.view = "all";
+      els.viewSelect.value = "all";
+      saveData();
+      closeOverlay(els.backupOverlay);
+      render();
+      syncBottomNav();
+      showToast("Demo caricata.");
+    }
+
+    function clearAllData(){
+      const ok = confirm("Vuoi cancellare tutti i prompt e tutte le cartelle personalizzate?");
+      if(!ok) return;
+
+      state.data = {
+        folders: [{ id:"all", name:"Tutte", system:true }],
+        prompts: [],
+        totalCopies: 0
+      };
+      state.activeFolderId = "all";
+      state.view = "all";
+      els.viewSelect.value = "all";
+      saveData();
+      closeOverlay(els.backupOverlay);
+      render();
+      syncBottomNav();
+      showToast("Archivio svuotato.");
+    }
+
+    function closeEditor(){
+      state.editingPromptId = null;
+      closeOverlay(els.editorOverlay);
+    }
+
+    function closeFolderEditor(){
+      closeOverlay(els.folderOverlay);
+    }
+
+    function closeDetail(){
+      closeOverlay(els.detailOverlay);
+      els.detailContent.innerHTML = "";
+    }
+
+    function openOverlay(overlay){
+      overlay.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeOverlay(overlay){
+      overlay.classList.remove("open");
+      if(!document.querySelector(".overlay.open")){
+        document.body.style.overflow = "";
       }
+    }
 
-      function renderAll(){
-        ensureStarterFolderIfEmpty();
-        populateFolderSelect();
-        renderStats();
-        renderFolders();
-        renderQuickSections();
-        renderPrompts();
+    function getFolderName(folderId){
+      return state.data.folders.find(folder => folder.id === folderId)?.name || "Cartella";
+    }
+
+    function getFirstRealFolderId(){
+      return state.data.folders.find(folder => folder.id !== "all")?.id || "all";
+    }
+
+    function isRecent(prompt){
+      const threeDays = 3 * 24 * 60 * 60 * 1000;
+      return (Date.now() - prompt.updatedAt) <= threeDays;
+    }
+
+    function slugify(text){
+      let base = text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      if(!base) base = "cartella";
+
+      let candidate = base;
+      let index = 2;
+      while(state.data.folders.some(folder => folder.id === candidate)){
+        candidate = `${base}-${index}`;
+        index++;
       }
+      return candidate;
+    }
 
-      bindEvents();
-      renderAll();
+    function limitText(text, max){
+      return text.length <= max ? text : text.slice(0, max).trim() + "…";
+    }
 
-      if("serviceWorker" in navigator){
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+    function formatDate(timestamp){
+      try{
+        return new Date(timestamp).toLocaleString("it-IT", {
+          day:"2-digit",
+          month:"2-digit",
+          year:"numeric",
+          hour:"2-digit",
+          minute:"2-digit"
         });
+      }catch(error){
+        return "";
       }
-    })();
+    }
+
+    function showToast(message){
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => {
+        els.toast.classList.remove("show");
+      }, 1500);
+    }
+
+    function escapeHtml(value){
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(value){
+      return escapeHtml(value).replaceAll("`", "&#096;");
+    }
   </script>
 </body>
 </html>
