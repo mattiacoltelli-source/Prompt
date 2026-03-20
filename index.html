@@ -88,25 +88,6 @@
       max-width:320px;
     }
 
-    .top-actions{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex:0 0 auto;
-    }
-
-    .icon-btn{
-      width:56px;
-      height:56px;
-      border:none;
-      border-radius:18px;
-      background:linear-gradient(180deg,#0f1828,#132038);
-      color:#d8e8ff;
-      box-shadow:var(--shadow-soft);
-      border:1px solid rgba(77,163,255,.18);
-      cursor:pointer;
-    }
-
     .search-wrap{
       margin-bottom:14px;
     }
@@ -131,29 +112,29 @@
     .stats{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:12px;
+      gap:10px;
       margin-bottom:18px;
     }
 
     .stat{
       background:linear-gradient(180deg,#101827,#131f32);
       border:1px solid rgba(255,255,255,.07);
-      border-radius:22px;
-      padding:16px;
+      border-radius:18px;
+      padding:12px 14px;
       box-shadow:var(--shadow-soft);
-      min-height:98px;
+      min-height:72px;
     }
 
     .stat-value{
-      font-size:24px;
+      font-size:20px;
       font-weight:800;
       line-height:1;
-      margin-bottom:8px;
+      margin-bottom:6px;
     }
 
     .stat-label{
       color:var(--muted);
-      font-size:13px;
+      font-size:12px;
       line-height:1.2;
     }
 
@@ -423,7 +404,7 @@
       border-radius:24px;
       padding:10px;
       display:grid;
-      grid-template-columns:repeat(4,1fr);
+      grid-template-columns:repeat(3,1fr);
       gap:10px;
       z-index:30;
     }
@@ -636,6 +617,10 @@
       .form-grid.two{
         grid-template-columns:1fr 1fr;
       }
+
+      .bottom-bar{
+        grid-template-columns:repeat(3,1fr);
+      }
     }
   </style>
 </head>
@@ -646,10 +631,6 @@
         <h1>PromptDock</h1>
         <p>Archivio prompt personale, veloce, chiaro e più vicino a una vera app.</p>
       </div>
-
-      <div class="top-actions">
-        <button class="icon-btn" id="backupBtn" aria-label="Backup e impostazioni">⚙️</button>
-      </div>
     </header>
 
     <section class="search-wrap">
@@ -659,7 +640,7 @@
     <section class="stats">
       <div class="stat">
         <div class="stat-value" id="statPrompts">0</div>
-        <div class="stat-label">Prompt totali</div>
+        <div class="stat-label">Prompt</div>
       </div>
       <div class="stat">
         <div class="stat-value" id="statFolders">0</div>
@@ -671,7 +652,7 @@
       </div>
       <div class="stat">
         <div class="stat-value" id="statCopies">0</div>
-        <div class="stat-label">Copie effettuate</div>
+        <div class="stat-label">Copie</div>
       </div>
     </section>
 
@@ -714,8 +695,7 @@
   <nav class="bottom-bar">
     <button class="nav-btn active" data-nav="all">Tutti</button>
     <button class="nav-btn" data-nav="favorites">Preferiti</button>
-    <button class="nav-btn" data-nav="new">Nuovo</button>
-    <button class="nav-btn" data-nav="recent">Recenti</button>
+    <button class="nav-btn" data-nav="backup">Backup</button>
   </nav>
 
   <div class="overlay" id="editorOverlay">
@@ -894,7 +874,6 @@
       listCount: document.getElementById("listCount"),
       promptList: document.getElementById("promptList"),
       fabBtn: document.getElementById("fabBtn"),
-      backupBtn: document.getElementById("backupBtn"),
       navBtns: Array.from(document.querySelectorAll(".nav-btn")),
       editorOverlay: document.getElementById("editorOverlay"),
       editorTitle: document.getElementById("editorTitle"),
@@ -948,15 +927,16 @@
       });
 
       els.fabBtn.addEventListener("click", openNewPromptEditor);
-      els.backupBtn.addEventListener("click", () => openOverlay(els.backupOverlay));
 
       els.navBtns.forEach(btn => {
         btn.addEventListener("click", () => {
           const nav = btn.dataset.nav;
-          if(nav === "new"){
-            openNewPromptEditor();
+
+          if(nav === "backup"){
+            openOverlay(els.backupOverlay);
             return;
           }
+
           state.view = nav;
           els.viewSelect.value = nav;
           syncBottomNav();
